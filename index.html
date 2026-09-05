@@ -279,7 +279,34 @@
   }
   .composer button:hover{ background:var(--ink-soft); }
 
-  .all-list{ display:flex; flex-direction:column; gap:6px; }
+  .all-list{ display:flex; flex-direction:column; gap:14px; }
+  .zone-group{ display:flex; flex-direction:column; }
+  .zone-divider{
+    position:relative;
+    align-self:flex-start;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    font-weight:600;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:6px 16px 6px 16px;
+    margin-left:10px;
+    color:#4A3A1E;
+    background:#D9C48A;
+    clip-path:polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 2px rgba(0,0,0,0.12);
+  }
+  .zone-divider .zone-count{ font-weight:400; opacity:0.7; margin-left:5px; }
+  .zone-folder{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    background:rgba(217,196,138,0.14);
+    border:1px solid rgba(74,58,30,0.16);
+    border-radius:0 8px 8px 8px;
+    padding:10px;
+    margin-top:-1px;
+  }
   .all-row{
     display:flex;
     align-items:center;
@@ -1509,18 +1536,35 @@ function renderAllList(visibleCards){
     allList.innerHTML = `<div class="empty-list">No cards in ${escapeHtml(currentZoneFilter)}.</div>`;
     return;
   }
-  const sorted = visibleCards.slice().sort((a,b) => CATS.indexOf(a.category) - CATS.indexOf(b.category));
-  allList.innerHTML = sorted.map(c => {
-    if(editingId === c.id) return renderEditRow(c);
-    return `<div class="all-row cat-${c.category}">
-      <div class="all-row-left">
-        <div>${escapeHtml(c.name)}</div>
-        <div class="all-row-sub">${cardMetaLine(c)} · next ${c.nextDue}</div>
-      </div>
-      <div class="all-row-actions">
-        <button class="icon-btn" onclick="startEdit('${c.id}')" title="Edit">✎</button>
-        <button class="icon-btn del-btn" onclick="deleteCard('${c.id}')" title="Remove">×</button>
-      </div>
+
+  // Group like a real card box's tab dividers: one section per zone,
+  // "No zone" always filed at the back rather than wherever it'd
+  // alphabetize to.
+  const zones = Array.from(new Set(visibleCards.map(zoneOf))).sort((a,b)=>{
+    if(a === 'No zone') return 1;
+    if(b === 'No zone') return -1;
+    return a.localeCompare(b);
+  });
+
+  allList.innerHTML = zones.map(zone => {
+    const cardsInZone = visibleCards.filter(c => zoneOf(c) === zone)
+      .slice().sort((a,b) => CATS.indexOf(a.category) - CATS.indexOf(b.category));
+    const rowsHtml = cardsInZone.map(c => {
+      if(editingId === c.id) return renderEditRow(c);
+      return `<div class="all-row cat-${c.category}">
+        <div class="all-row-left">
+          <div>${escapeHtml(c.name)}</div>
+          <div class="all-row-sub">${cardMetaLine(c)} · next ${c.nextDue}</div>
+        </div>
+        <div class="all-row-actions">
+          <button class="icon-btn" onclick="startEdit('${c.id}')" title="Edit">✎</button>
+          <button class="icon-btn del-btn" onclick="deleteCard('${c.id}')" title="Remove">×</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="zone-group">
+      <div class="zone-divider">${escapeHtml(zone)}<span class="zone-count">${cardsInZone.length}</span></div>
+      <div class="zone-folder">${rowsHtml}</div>
     </div>`;
   }).join('');
 }
