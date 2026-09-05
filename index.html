@@ -417,6 +417,22 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const STORAGE_KEY = 'cardbox-state-v3';
 
+// ---- Storage adapter ----
+// Runs as a plain static page (localStorage) as well as a Claude
+// artifact (window.storage), so the load/save calls below can stay
+// agnostic to which one is actually backing them.
+const storage = (window.storage && typeof window.storage.get === 'function')
+  ? window.storage
+  : {
+      async get(key){
+        const raw = localStorage.getItem(key);
+        return raw === null ? null : { value: raw };
+      },
+      async set(key, value){
+        localStorage.setItem(key, value);
+      },
+    };
+
 let state = { cards: [], points: 0 };
 let editingId = null;
 
@@ -531,7 +547,7 @@ function seedStarterCards(){
 async function loadState(){
   let isFreshBox = false;
   try{
-    const res = await window.storage.get(STORAGE_KEY, false);
+    const res = await storage.get(STORAGE_KEY, false);
     if(res && res.value) state = JSON.parse(res.value);
     else isFreshBox = true;
   }catch(e){ isFreshBox = true; console.log('Starting a fresh box.'); }
@@ -544,7 +560,7 @@ async function loadState(){
   render();
 }
 async function saveState(){
-  try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }
+  try{ await storage.set(STORAGE_KEY, JSON.stringify(state), false); }
   catch(e){ console.error('Save failed', e); }
 }
 

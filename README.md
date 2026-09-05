@@ -46,11 +46,10 @@ Each card: `{ id, name, zone, category, points, weekday?, dayOfMonth?, month?, n
 
 ## Persistence
 
-Uses the Claude Artifact `window.storage` API (get/set/delete/list), not
-localStorage — this file is built to run as a Claude.ai artifact as well as
-a plain static page. If serving outside Claude.ai, `window.storage` won't
-exist and card data won't persist — that's the main thing to fix if this
-becomes a standalone deployed app (swap in localStorage or a real backend).
+Uses a small storage adapter that prefers the Claude Artifact
+`window.storage` API when present (get/set) and falls back to
+`localStorage` otherwise, so the same file runs unmodified as a Claude.ai
+artifact or as a plain static page.
 
 ## Visual language
 
