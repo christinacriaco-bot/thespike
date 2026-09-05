@@ -347,6 +347,243 @@
   @media (max-width:520px){
     .composer input#c-name{ flex:1 1 100%; }
   }
+
+  /* --- View tabs (Today / This Week) --- */
+  .view-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:20px;
+    border-bottom:1px solid rgba(59,52,42,0.15);
+  }
+  .view-tab{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    letter-spacing:0.02em;
+    padding:9px 16px;
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+  }
+  .view-tab:hover{ color:var(--ink); }
+  .view-tab.active{ color:var(--ink); border-bottom-color:var(--ink); font-weight:600; }
+
+  /* --- This Week: corkboard + spike --- */
+  .week-layout{ display:grid; grid-template-columns:1fr 220px; gap:28px; align-items:start; }
+  @media (max-width:700px){
+    .week-layout{ grid-template-columns:1fr; }
+    .week-composer{ flex-wrap:wrap; }
+    .week-composer input#noteText{ flex:1 1 100%; }
+  }
+  .week-composer{ display:flex; gap:8px; margin-bottom:14px; }
+  .week-composer input{
+    font-family:'Work Sans', sans-serif;
+    font-size:0.9rem;
+    padding:10px 12px;
+    border:1px solid rgba(59,52,42,0.25);
+    border-radius:8px;
+    background:rgba(255,255,255,0.6);
+    color:var(--ink);
+    outline:none;
+  }
+  .week-composer input#noteText{ flex:1; }
+  .week-composer input#noteCategory{ width:130px; }
+  .week-composer button{
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;
+    font-size:0.88rem;
+    padding:0 18px;
+    border:none;
+    border-radius:8px;
+    background:var(--ink);
+    color:var(--paper);
+    cursor:pointer;
+  }
+  .week-composer button:hover{ background:var(--ink-soft); }
+
+  .note-filters{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .filter-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    padding:5px 11px;
+    border-radius:999px;
+    border:1px solid rgba(59,52,42,0.2);
+    background:rgba(255,255,255,0.4);
+    color:var(--ink-soft);
+    cursor:pointer;
+    user-select:none;
+  }
+  .filter-chip:hover{ background:rgba(255,255,255,0.7); }
+  .filter-chip.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+  .board-frame{
+    padding:16px;
+    border-radius:14px;
+    background:linear-gradient(155deg, #B98F5C 0%, #A0754A 45%, #82593A 100%);
+    box-shadow:0 8px 20px rgba(45,30,15,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .pending-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px 14px;
+    align-content:flex-start;
+    min-height:140px;
+    border-radius:7px;
+    padding:22px 20px;
+    position:relative;
+    background:
+      radial-gradient(circle at 12% 22%, rgba(255,255,255,0.10) 0, rgba(255,255,255,0.10) 1px, transparent 1.6px),
+      radial-gradient(circle at 78% 15%, rgba(0,0,0,0.14) 0, rgba(0,0,0,0.14) 1px, transparent 1.6px),
+      radial-gradient(circle at 42% 68%, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1.6px),
+      radial-gradient(circle at 88% 78%, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 1px, transparent 1.6px),
+      radial-gradient(circle at 25% 88%, rgba(0,0,0,0.10) 0, rgba(0,0,0,0.10) 1px, transparent 1.6px),
+      radial-gradient(circle at 60% 40%, rgba(255,255,255,0.07) 0, rgba(255,255,255,0.07) 1px, transparent 1.6px),
+      radial-gradient(ellipse at top, #E4C79A 0%, #D8B685 65%, #CDA871 100%);
+    background-size:38px 38px, 44px 44px, 33px 33px, 50px 50px, 41px 41px, 29px 29px, 100% 100%;
+    box-shadow:
+      inset 0 0 0 1px rgba(0,0,0,0.1),
+      inset 0 2px 8px rgba(90,60,25,0.3),
+      inset 0 -2px 6px rgba(90,60,25,0.18);
+  }
+  .empty-msg{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    color:rgba(60,40,20,0.65);
+    padding:18px 4px;
+  }
+  .note{
+    width:150px;
+    min-height:88px;
+    padding:12px 12px 10px;
+    background:#fff;
+    font-family:'Work Sans', sans-serif;
+    font-size:0.86rem;
+    line-height:1.35;
+    color:#3a3226;
+    box-shadow:0 3px 8px rgba(59,52,42,0.18), 0 1px 2px rgba(59,52,42,0.12);
+    cursor:pointer;
+    position:relative;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    word-break:break-word;
+  }
+  .note:hover{ transform:translateY(-3px) rotate(0deg) !important; box-shadow:0 10px 18px rgba(20,12,4,0.35); }
+  .note .pin{
+    position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+    width:13px; height:13px; border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, #F0917A, #C0452B 55%, #8C2E1A 100%);
+    box-shadow:0 2px 3px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.4);
+    z-index:2;
+  }
+  .note .del{
+    position:absolute; top:-9px; right:-8px; width:20px; height:20px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; line-height:1;
+    color:rgba(0,0,0,0.5); background:var(--paper);
+    border:1px solid rgba(59,52,42,0.25); border-radius:50%;
+    box-shadow:0 1px 3px rgba(0,0,0,0.2); cursor:pointer; padding:0;
+  }
+  .note .del:hover{ color:#fff; background:var(--due-ring); border-color:var(--due-ring); }
+  .note .tag{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    padding:2px 7px; border-radius:999px; background:rgba(255,255,255,0.55);
+    color:#3a3226; margin-bottom:6px; border:1px solid rgba(0,0,0,0.12);
+  }
+  .note .edit-cat, .note .edit-input{
+    display:block; width:100%; font-family:'Work Sans', sans-serif; font-size:0.86rem;
+    color:#3a3226; background:rgba(255,255,255,0.55); border:1px solid rgba(0,0,0,0.2);
+    border-radius:4px; padding:4px 6px; outline:none; margin-bottom:4px;
+  }
+  .board-caption{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-soft);
+    text-align:center;
+    margin-top:10px;
+  }
+
+  .spike-col{ display:flex; flex-direction:column; align-items:center; position:sticky; top:20px; }
+  .spike-col h2{
+    font-family:'IBM Plex Mono', monospace; font-size:0.7rem; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--ink-soft); margin:0 0 10px;
+  }
+  .spike-stage{ position:relative; width:210px; height:340px; }
+  .base{
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:90px; height:32px; border-radius:50% / 40%;
+    background:radial-gradient(ellipse at 35% 25%, #D9C3A0, transparent 60%), linear-gradient(180deg, #C6A876 0%, #9C7C4E 55%, #7C6038 100%);
+    box-shadow:0 4px 8px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.25);
+  }
+  .rod{
+    position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
+    width:3px; height:190px;
+    background:linear-gradient(90deg, #C9BEA9, var(--wire) 40%, var(--wire-dark));
+    border-radius:2px 2px 0 0; box-shadow:1px 0 2px rgba(0,0,0,0.15); z-index:1;
+  }
+  .rod::after{
+    content:''; position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent;
+    border-bottom:15px solid var(--wire-dark);
+  }
+  .rod.shake{ animation: shake 0.28s ease; }
+  @keyframes shake{
+    0%{transform:translateX(-50%) rotate(0deg);}
+    25%{transform:translateX(-50%) rotate(1.2deg);}
+    50%{transform:translateX(-50%) rotate(-1deg);}
+    75%{transform:translateX(-50%) rotate(0.6deg);}
+    100%{transform:translateX(-50%) rotate(0deg);}
+  }
+  .fleck{
+    position:absolute; width:5px; height:9px; border-radius:1px;
+    pointer-events:none; z-index:5; animation: fleck-fly 0.5s ease-out forwards;
+  }
+  @keyframes fleck-fly{
+    0%{opacity:1; transform:translate(0,0) rotate(0deg);}
+    100%{opacity:0; transform:var(--fend) rotate(var(--frot));}
+  }
+  .flash-msg{
+    position:absolute; top:38%; left:50%; transform:translateX(-50%);
+    font-family:'Fraunces', serif; font-style:italic; font-size:1rem; color:var(--ink-soft);
+    pointer-events:none; z-index:6; animation: flash-up 0.9s ease-out forwards;
+  }
+  @keyframes flash-up{
+    0%{opacity:0; transform:translate(-50%,6px);}
+    25%{opacity:1; transform:translate(-50%,-4px);}
+    75%{opacity:1; transform:translate(-50%,-14px);}
+    100%{opacity:0; transform:translate(-50%,-24px);}
+  }
+  .pile{
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    width:170px; display:flex; flex-direction:column-reverse; align-items:center; z-index:2;
+  }
+  .spiked-note{
+    position:relative; border-radius:1.5px; cursor:pointer;
+    box-shadow:0 1px 0 rgba(0,0,0,0.18), 0 -1px 0 rgba(255,255,255,0.22) inset;
+    animation: drop 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes drop{
+    0%{transform:translateY(-30px) scale(1.04); opacity:0;}
+    100%{transform:translateY(0) scale(1); opacity:1;}
+  }
+  .count-tag{
+    margin-top:10px; font-family:'IBM Plex Mono', monospace; font-size:0.72rem;
+    color:var(--ink-soft); text-align:center;
+  }
+  .week-legend{
+    margin-top:16px; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:210px;
+  }
+  .week-legend span{
+    display:flex; align-items:center; gap:4px; font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem; color:var(--ink-soft); background:rgba(255,255,255,0.4);
+    padding:3px 7px; border-radius:999px;
+  }
+  .week-legend .dot{ width:8px; height:8px; border-radius:50%; }
+
+  @media (prefers-reduced-motion: reduce){
+    .spiked-note{ animation:none; }
+    .note{ transition:none; }
+  }
 </style>
 </head>
 <body>
@@ -360,50 +597,85 @@
     <div class="tally-pill">⭐ <span id="tally">0 pts</span></div>
   </header>
 
-  <div class="legend">
-    <span><span class="dot" style="background:var(--daily)"></span>Daily</span>
-    <span><span class="dot" style="background:var(--weekly)"></span>Weekly</span>
-    <span><span class="dot" style="background:var(--monthly)"></span>Monthly</span>
-    <span><span class="dot" style="background:var(--seasonal)"></span>Seasonal</span>
-    <span><span class="dot" style="background:var(--personal)"></span>Personal</span>
+  <div class="view-tabs">
+    <button class="view-tab active" id="tabToday" data-view="today">Today</button>
+    <button class="view-tab" id="tabWeek" data-view="week">This Week</button>
   </div>
 
-  <div class="today-label" id="todayLabel"></div>
-  <div class="index-box" id="indexBox"></div>
-  <div class="caption">tap a card to mark it done · tap again to undo</div>
-
-  <div class="manage-section">
-    <div class="section-title">Add a card</div>
-    <div class="composer">
-      <input type="text" id="c-name" placeholder="Card text" maxlength="80">
-      <input type="text" id="c-zone" placeholder="Zone (optional)" maxlength="24">
-      <select id="c-cat">
-        <option value="daily">Daily</option>
-        <option value="weekly" selected>Weekly</option>
-        <option value="monthly">Monthly</option>
-        <option value="seasonal">Seasonal</option>
-        <option value="personal">Personal</option>
-      </select>
-      <select id="c-weekday">
-        <option value="mon">Monday</option>
-        <option value="tue">Tuesday</option>
-        <option value="wed">Wednesday</option>
-        <option value="thu">Thursday</option>
-        <option value="fri">Friday</option>
-        <option value="sat">Saturday</option>
-        <option value="sun">Sunday</option>
-      </select>
-      <select id="c-dom"></select>
-      <select id="c-month"></select>
-      <select id="c-seasonday"></select>
-      <input type="number" id="c-points" min="1" max="50" value="5" placeholder="Pts">
-      <button id="addBtn">Add</button>
+  <div id="todayView">
+    <div class="legend">
+      <span><span class="dot" style="background:var(--daily)"></span>Daily</span>
+      <span><span class="dot" style="background:var(--weekly)"></span>Weekly</span>
+      <span><span class="dot" style="background:var(--monthly)"></span>Monthly</span>
+      <span><span class="dot" style="background:var(--seasonal)"></span>Seasonal</span>
+      <span><span class="dot" style="background:var(--personal)"></span>Personal</span>
     </div>
 
-    <button id="seedBtn" style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;padding:8px 14px;border:1px dashed var(--ink-soft);background:transparent;color:var(--ink-soft);border-radius:6px;cursor:pointer;margin-bottom:22px;">+ Load starter set: Kitchen &amp; Living room (18 cards)</button>
+    <div class="today-label" id="todayLabel"></div>
+    <div class="index-box" id="indexBox"></div>
+    <div class="caption">tap a card to mark it done · tap again to undo</div>
 
-    <div class="section-title">Whole box <span id="deckCount" style="font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:0.75rem;color:var(--ink-soft)"></span></div>
-    <div class="all-list" id="allList"></div>
+    <div class="manage-section">
+      <div class="section-title">Add a card</div>
+      <div class="composer">
+        <input type="text" id="c-name" placeholder="Card text" maxlength="80">
+        <input type="text" id="c-zone" placeholder="Zone (optional)" maxlength="24">
+        <select id="c-cat">
+          <option value="daily">Daily</option>
+          <option value="weekly" selected>Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="seasonal">Seasonal</option>
+          <option value="personal">Personal</option>
+        </select>
+        <select id="c-weekday">
+          <option value="mon">Monday</option>
+          <option value="tue">Tuesday</option>
+          <option value="wed">Wednesday</option>
+          <option value="thu">Thursday</option>
+          <option value="fri">Friday</option>
+          <option value="sat">Saturday</option>
+          <option value="sun">Sunday</option>
+        </select>
+        <select id="c-dom"></select>
+        <select id="c-month"></select>
+        <select id="c-seasonday"></select>
+        <input type="number" id="c-points" min="1" max="50" value="5" placeholder="Pts">
+        <button id="addBtn">Add</button>
+      </div>
+
+      <button id="seedBtn" style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;padding:8px 14px;border:1px dashed var(--ink-soft);background:transparent;color:var(--ink-soft);border-radius:6px;cursor:pointer;margin-bottom:22px;">+ Load starter set: Kitchen &amp; Living room (18 cards)</button>
+
+      <div class="section-title">Whole box <span id="deckCount" style="font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:0.75rem;color:var(--ink-soft)"></span></div>
+      <div class="all-list" id="allList"></div>
+    </div>
+  </div>
+
+  <div id="weekView" style="display:none;">
+    <div class="week-composer">
+      <input type="text" id="noteText" placeholder="One-off task for this week&hellip;" maxlength="120" autocomplete="off">
+      <input type="text" id="noteCategory" placeholder="category (optional)" maxlength="24" autocomplete="off" list="noteCategoryList">
+      <datalist id="noteCategoryList"></datalist>
+      <button id="addNoteBtn">Add</button>
+    </div>
+    <div class="note-filters" id="noteFilters"></div>
+    <div class="week-layout">
+      <div>
+        <div class="board-frame">
+          <div class="pending-list" id="pendingList"></div>
+        </div>
+        <div class="board-caption">tap a note to edit &middot; double-tap to spike it</div>
+      </div>
+      <div class="spike-col">
+        <h2>Spiked</h2>
+        <div class="spike-stage">
+          <div class="rod" id="rod"></div>
+          <div class="base"></div>
+          <div class="pile" id="pile"></div>
+        </div>
+        <div class="count-tag" id="countTag"></div>
+        <div class="week-legend" id="weekLegend"></div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -433,7 +705,7 @@ const storage = (window.storage && typeof window.storage.get === 'function')
       },
     };
 
-let state = { cards: [], points: 0 };
+let state = { cards: [], notes: [], points: 0 };
 let editingId = null;
 
 function uid(){ return 'c' + Date.now() + Math.floor(Math.random()*1000); }
@@ -515,32 +787,40 @@ function statusOf(card){
   return 'upcoming';
 }
 
-// ---- Starter seed (only used the very first time the box is empty) ----
-const SEED_CARDS = [
-  { name:'Wipe counters & stovetop', zone:'Kitchen', category:'daily', points:5 },
-  { name:'Wash/load dishes', zone:'Kitchen', category:'daily', points:5 },
-  { name:'Clean out fridge leftovers, wipe shelves', zone:'Kitchen', category:'weekly', points:10, weekday:'sun' },
-  { name:'Mop kitchen floor', zone:'Kitchen', category:'weekly', points:8, weekday:'wed' },
-  { name:'Wipe cabinet fronts & appliance exteriors', zone:'Kitchen', category:'monthly', points:12, dayOfMonth:1 },
-  { name:'Descale kettle & clean microwave', zone:'Kitchen', category:'monthly', points:10, dayOfMonth:15 },
-  { name:'Deep clean oven + range hood filter', zone:'Kitchen', category:'seasonal', points:20, month:3, dayOfMonth:1 },
-  { name:'Deep clean fridge (empty, wipe, check expiries)', zone:'Kitchen', category:'seasonal', points:20, month:9, dayOfMonth:1 },
-  { name:'Quick tidy \u2014 pillows, blankets, surfaces', zone:'Living room', category:'daily', points:5 },
-  { name:'Vacuum floor/rug', zone:'Living room', category:'weekly', points:10, weekday:'sat' },
-  { name:'Dust surfaces & TV screen', zone:'Living room', category:'weekly', points:8, weekday:'tue' },
-  { name:'Wash cushion covers/throws', zone:'Living room', category:'monthly', points:10, dayOfMonth:5 },
-  { name:'Clean windows & glass doors', zone:'Living room', category:'monthly', points:12, dayOfMonth:20 },
-  { name:'Deep clean under furniture, rotate cushions', zone:'Living room', category:'seasonal', points:15, month:6, dayOfMonth:1 },
-  { name:'Wash curtains/blinds', zone:'Living room', category:'seasonal', points:15, month:12, dayOfMonth:1 },
+// ---- This Week: corkboard + spike (adapted from The Spike) ----
+const WEEK_PALETTE = [
+  {name:'clay',       hex:'#C97B5A'},
+  {name:'sage',       hex:'#8A9A7E'},
+  {name:'dusty blue', hex:'#7C93A8'},
+  {name:'ochre',      hex:'#D4A24C'},
+  {name:'rose',       hex:'#C98A94'},
+  {name:'olive',      hex:'#6E7B4F'},
 ];
+const MAX_PILE = 100;
+const FLASH_WORDS = ['Spiked.','Done.','Gone.','Cleared.','Nice.','Sorted.','Off the board.'];
+let editingNoteId = null;
+let currentNoteFilter = 'All';
 
-function seedStarterCards(){
-  SEED_CARDS.forEach(s => {
-    const card = { id: uid(), name:s.name, zone:s.zone, category:s.category, points:s.points,
-      weekday:s.weekday, dayOfMonth:s.dayOfMonth, month:s.month, nextDue:null, lastDone:null };
-    card.nextDue = computeInitialDueDate(card);
-    state.cards.push(card);
-  });
+function isoWeekKey(d){
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (date.getUTCDay() + 6) % 7;
+  date.setUTCDate(date.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(date.getUTCFullYear(),0,4));
+  const weekNum = 1 + Math.round(((date - firstThursday) / 86400000 - 3 + ((firstThursday.getUTCDay()+6)%7)) / 7);
+  return {year:date.getUTCFullYear(), week:weekNum, key:date.getUTCFullYear()+'-W'+String(weekNum).padStart(2,'0')};
+}
+function colorForWeek(weekNum){
+  return WEEK_PALETTE[((weekNum-1) % WEEK_PALETTE.length + WEEK_PALETTE.length) % WEEK_PALETTE.length];
+}
+function tiltFor(id){
+  let h = 0;
+  for(let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i)) % 1000;
+  return ((h % 9) - 4);
+}
+function jitterFor(id){
+  let h = 0;
+  for(let i=0;i<id.length;i++) h = (h*17 + id.charCodeAt(i)*7) % 1000;
+  return ((h % 25) - 12);
 }
 
 // ---- Persistence ----
@@ -552,6 +832,7 @@ async function loadState(){
     else isFreshBox = true;
   }catch(e){ isFreshBox = true; console.log('Starting a fresh box.'); }
   if(!state.cards) state.cards = [];
+  if(!state.notes) state.notes = [];
   if(typeof state.points !== 'number') state.points = 0;
   if(isFreshBox && state.cards.length === 0){
     seedStarterCards();
@@ -666,6 +947,283 @@ function populateDateSelects(){
 populateDateSelects();
 updateComposerVisibility();
 
+// ---- This Week: note actions ----
+function getKnownNoteCategories(){
+  return Array.from(new Set(state.notes.map(n => n.category).filter(Boolean))).sort();
+}
+
+function addNote(){
+  const textEl = document.getElementById('noteText');
+  const catEl = document.getElementById('noteCategory');
+  const text = textEl.value.trim();
+  if(!text) return;
+  const now = new Date();
+  const {week, key} = isoWeekKey(now);
+  const color = colorForWeek(week);
+  const cat = catEl.value.trim() || 'General';
+  state.notes.push({
+    id: uid(), text, category: cat, weekKey: key, weekNum: week,
+    colorHex: color.hex, colorName: color.name,
+    spiked: false, createdAt: now.toISOString(), spikedAt: null
+  });
+  textEl.value = '';
+  catEl.value = '';
+  saveState();
+  renderWeek();
+}
+
+let audioCtx = null;
+function playThunk(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const oGain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, t0);
+    osc.frequency.exponentialRampToValueAtTime(60, t0+0.09);
+    oGain.gain.setValueAtTime(0.35, t0);
+    oGain.gain.exponentialRampToValueAtTime(0.001, t0+0.14);
+    osc.connect(oGain).connect(audioCtx.destination);
+    osc.start(t0); osc.stop(t0+0.15);
+
+    const bufferSize = audioCtx.sampleRate * 0.05;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * (1 - i/bufferSize); }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const nGain = audioCtx.createGain();
+    nGain.gain.setValueAtTime(0.18, t0);
+    nGain.gain.exponentialRampToValueAtTime(0.001, t0+0.05);
+    const filter = audioCtx.createBiquadFilter();
+    filter.type='highpass'; filter.frequency.value=1200;
+    noise.connect(filter).connect(nGain).connect(audioCtx.destination);
+    noise.start(t0);
+  }catch(e){ /* audio not available, silently skip */ }
+}
+function vibrateShort(){
+  if(navigator.vibrate) navigator.vibrate(16);
+}
+function shakeRod(){
+  const rod = document.getElementById('rod');
+  if(!rod) return;
+  rod.classList.remove('shake');
+  void rod.offsetWidth;
+  rod.classList.add('shake');
+}
+function spawnFlecks(originEl, color){
+  const stage = document.querySelector('.spike-stage');
+  if(!stage) return;
+  const rect = originEl.getBoundingClientRect();
+  const stageRect = stage.getBoundingClientRect();
+  const originX = rect.left + rect.width/2 - stageRect.left;
+  const originY = rect.top - stageRect.top;
+  for(let i=0;i<7;i++){
+    const f = document.createElement('div');
+    f.className='fleck';
+    const angle = (Math.random()*Math.PI) - Math.PI;
+    const dist = 26 + Math.random()*34;
+    const ex = Math.cos(angle)*dist;
+    const ey = Math.sin(angle)*dist - 10;
+    f.style.setProperty('--fend', `translate(${ex}px, ${ey}px)`);
+    f.style.setProperty('--frot', (Math.random()*360-180)+'deg');
+    f.style.left = originX+'px';
+    f.style.top = originY+'px';
+    f.style.background = color;
+    stage.appendChild(f);
+    setTimeout(()=>f.remove(), 550);
+  }
+}
+function flashMessage(){
+  const stage = document.querySelector('.spike-stage');
+  if(!stage) return;
+  const el = document.createElement('div');
+  el.className='flash-msg';
+  el.textContent = FLASH_WORDS[Math.floor(Math.random()*FLASH_WORDS.length)];
+  stage.appendChild(el);
+  setTimeout(()=>el.remove(), 950);
+}
+
+function spikeNote(id, originEl){
+  const n = state.notes.find(x=>x.id===id);
+  if(!n) return;
+  n.spiked = true;
+  n.spikedAt = new Date().toISOString();
+  saveState();
+  playThunk();
+  vibrateShort();
+  shakeRod();
+  if(originEl) spawnFlecks(originEl, n.colorHex);
+  flashMessage();
+  renderWeek();
+}
+function unspikeNote(id){
+  const n = state.notes.find(x=>x.id===id);
+  if(!n) return;
+  n.spiked = false;
+  n.spikedAt = null;
+  saveState();
+  renderWeek();
+}
+function deleteNote(id){
+  state.notes = state.notes.filter(x=>x.id!==id);
+  saveState();
+  renderWeek();
+}
+function startEditNote(id){ editingNoteId = id; renderWeek(); }
+function cancelEditNote(){ editingNoteId = null; renderWeek(); }
+function saveEditNote(id, newText, newCategory){
+  const n = state.notes.find(x=>x.id===id);
+  if(n && newText.trim()){
+    n.text = newText.trim();
+    n.category = newCategory.trim() || 'General';
+    saveState();
+  }
+  editingNoteId = null;
+  renderWeek();
+}
+
+document.getElementById('addNoteBtn').addEventListener('click', addNote);
+document.getElementById('noteText').addEventListener('keydown', e => { if(e.key === 'Enter') addNote(); });
+
+function switchView(view){
+  document.getElementById('tabToday').classList.toggle('active', view === 'today');
+  document.getElementById('tabWeek').classList.toggle('active', view === 'week');
+  document.getElementById('todayView').style.display = view === 'today' ? '' : 'none';
+  document.getElementById('weekView').style.display = view === 'week' ? '' : 'none';
+  if(view === 'week') renderWeek();
+}
+document.getElementById('tabToday').addEventListener('click', () => switchView('today'));
+document.getElementById('tabWeek').addEventListener('click', () => switchView('week'));
+
+function renderWeek(){
+  const {week, key} = isoWeekKey(new Date());
+
+  // category filter chips
+  const allCats = Array.from(new Set(state.notes.filter(n=>!n.spiked).map(n=>n.category)));
+  const filtersEl = document.getElementById('noteFilters');
+  if(allCats.length <= 1){
+    filtersEl.innerHTML = '';
+    currentNoteFilter = 'All';
+  } else {
+    const chipCats = ['All', ...allCats.sort()];
+    if(!chipCats.includes(currentNoteFilter)) currentNoteFilter = 'All';
+    filtersEl.innerHTML = '';
+    chipCats.forEach(c=>{
+      const chip = document.createElement('div');
+      chip.className = 'filter-chip' + (c===currentNoteFilter ? ' active' : '');
+      chip.textContent = c;
+      chip.addEventListener('click', ()=>{ currentNoteFilter = c; renderWeek(); });
+      filtersEl.appendChild(chip);
+    });
+  }
+  document.getElementById('noteCategoryList').innerHTML =
+    getKnownNoteCategories().map(c=>`<option value="${escapeHtml(c)}">`).join('');
+
+  // pending notes on the corkboard
+  const pendingList = document.getElementById('pendingList');
+  let pending = state.notes.filter(n=>!n.spiked).sort((a,b)=>{
+    const aCurrent = a.weekKey===key ? 0 : 1;
+    const bCurrent = b.weekKey===key ? 0 : 1;
+    if(aCurrent !== bCurrent) return aCurrent - bCurrent;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+  if(currentNoteFilter !== 'All') pending = pending.filter(n=>n.category===currentNoteFilter);
+  pendingList.innerHTML = '';
+  if(pending.length===0){
+    pendingList.innerHTML = '<div class="empty-msg">Nothing here. Add a one-off task above.</div>';
+  }
+  pending.forEach(n=>{
+    const el = document.createElement('div');
+    el.className='note';
+    const tilt = tiltFor(n.id);
+    el.style.background = n.colorHex;
+    el.style.transform = `rotate(${tilt}deg)`;
+
+    if(n.id === editingNoteId){
+      el.innerHTML = `<div class="pin"></div><input type="text" class="edit-cat" value="${escapeHtml(n.category)}" maxlength="24" placeholder="category"><input type="text" class="edit-input" value="${escapeHtml(n.text)}" maxlength="120">`;
+      pendingList.appendChild(el);
+      const inp = el.querySelector('.edit-input');
+      const catInp = el.querySelector('.edit-cat');
+      inp.focus();
+      inp.select();
+      let committed = false;
+      const commit = ()=>{ if(committed) return; committed = true; saveEditNote(n.id, inp.value, catInp.value); };
+      [inp, catInp].forEach(field=>{
+        field.addEventListener('keydown', (e)=>{
+          e.stopPropagation();
+          if(e.key==='Enter') commit();
+          if(e.key==='Escape'){ committed = true; cancelEditNote(); }
+        });
+        field.addEventListener('blur', ()=>{
+          setTimeout(()=>{ if(document.activeElement !== inp && document.activeElement !== catInp) commit(); }, 0);
+        });
+      });
+      return;
+    }
+
+    el.innerHTML = `<div class="pin"></div><span class="tag">${escapeHtml(n.category)}</span>${n.weekKey!==key ? `<span class="tag">Wk ${n.weekKey.split('-W')[1]}</span>` : ''}<br>${escapeHtml(n.text)}<button class="del" title="discard">&#10005;</button>`;
+    el.querySelector('.del').addEventListener('click', (e)=>{ e.stopPropagation(); deleteNote(n.id); });
+    let clickTimer = null;
+    el.addEventListener('click', (e)=>{
+      if(e.target.classList.contains('del')) return;
+      if(clickTimer) return;
+      clickTimer = setTimeout(()=>{ clickTimer = null; startEditNote(n.id); }, 230);
+    });
+    el.addEventListener('dblclick', (e)=>{
+      if(e.target.classList.contains('del')) return;
+      if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
+      spikeNote(n.id, el);
+    });
+    pendingList.appendChild(el);
+  });
+
+  // spiked pile
+  const pile = document.getElementById('pile');
+  const spiked = state.notes.filter(n=>n.spiked).sort((a,b)=> new Date(a.spikedAt)-new Date(b.spikedAt));
+  const shown = spiked.slice(-MAX_PILE);
+  const baseWidth = 140;
+  const count = shown.length;
+  const layerHeight = count > 0 ? Math.max(1, Math.min(8, 18 / Math.sqrt(count + 3))) : 0;
+  const overlap = layerHeight * 0.55;
+  pile.innerHTML='';
+  shown.forEach((n, idx)=>{
+    const el = document.createElement('div');
+    el.className='spiked-note';
+    const tilt = tiltFor(n.id) * (idx===shown.length-1 ? 0.4 : 1);
+    const jitterX = jitterFor(n.id) * 0.5;
+    const widthJitter = 1 - Math.abs(jitterX)/60;
+    el.style.height = layerHeight + 'px';
+    el.style.width = Math.round(baseWidth * widthJitter) + 'px';
+    el.style.marginTop = idx===0 ? '0px' : (-(layerHeight - overlap)) + 'px';
+    el.style.transform = `translateX(${jitterX}px) rotate(${tilt}deg)`;
+    el.style.background = n.colorHex;
+    el.style.zIndex = idx;
+    el.title = `${n.text} — ${n.category}, ${n.weekKey} (${n.colorName}). Double-click to un-spike.`;
+    el.addEventListener('dblclick', ()=> unspikeNote(n.id));
+    pile.appendChild(el);
+  });
+  const overflow = spiked.length - shown.length;
+  document.getElementById('countTag').textContent = spiked.length===0
+    ? 'Nothing spiked yet'
+    : `${spiked.length} spiked total${overflow>0 ? ` (older ${overflow} buried below)` : ''}`;
+
+  // legend: last 6 distinct weeks present in notes, most recent first
+  const weeksSeen = {};
+  state.notes.forEach(n=>{ weeksSeen[n.weekKey] = n; });
+  const weekKeys = Object.keys(weeksSeen).sort().reverse().slice(0,6);
+  const legend = document.getElementById('weekLegend');
+  legend.innerHTML='';
+  weekKeys.forEach(k=>{
+    const sample = weeksSeen[k];
+    const span = document.createElement('span');
+    span.innerHTML = `<span class="dot" style="background:${sample.colorHex}"></span> W${k.split('-W')[1]}`;
+    legend.appendChild(span);
+  });
+}
+
 // ---- Render ----
 function prettyToday(){
   return new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
@@ -778,6 +1336,7 @@ setInterval(() => {
   if(now.toDateString() !== lastKnownDateStr){
     lastKnownDateStr = now.toDateString();
     render();
+    if(document.getElementById('weekView').style.display !== 'none') renderWeek();
   }
 }, 5 * 60 * 1000);
 
