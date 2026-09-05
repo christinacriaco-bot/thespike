@@ -738,6 +738,8 @@
           <div class="pile" id="pile"></div>
         </div>
         <div class="count-tag" id="countTag"></div>
+        <div class="count-tag" id="spikedTodayTag"></div>
+        <div class="board-caption" style="margin-top:14px;margin-bottom:2px;">recent weeks</div>
         <div class="week-legend" id="weekLegend"></div>
       </div>
     </div>
@@ -1363,6 +1365,9 @@ function renderWeek(){
   document.getElementById('countTag').textContent = spiked.length===0
     ? 'Nothing spiked yet'
     : `${spiked.length} spiked total${overflow>0 ? ` (older ${overflow} buried below)` : ''}`;
+
+  const spikedToday = spiked.filter(n => n.spikedAt && new Date(n.spikedAt).toDateString() === new Date().toDateString()).length;
+  document.getElementById('spikedTodayTag').textContent = spikedToday > 0 ? `spiked today: ${spikedToday}` : '';
 
   // legend: last 6 distinct weeks present in notes, most recent first
   const weeksSeen = {};
