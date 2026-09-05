@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Spike</title>
+<title>The Card Box</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
   :root{
     --paper: #EFE6D8;
-    --paper-deep: #E4D8C4;
     --ink: #3B342A;
     --ink-soft: #6B5F4F;
     --wire: #A79A85;
     --wire-dark: #756A57;
 
-    --c1: #C97B5A; /* terracotta clay */
-    --c2: #8A9A7E; /* sage */
-    --c3: #7C93A8; /* dusty blue */
-    --c4: #D4A24C; /* ochre */
-    --c5: #C98A94; /* dusty rose */
-    --c6: #6E7B4F; /* olive */
+    --daily: #D4A24C;    /* ochre */
+    --weekly: #7C93A8;   /* dusty blue */
+    --monthly: #C97B5A;  /* clay */
+    --seasonal: #8A9A7E; /* sage */
+    --personal: #C98A94; /* dusty rose */
 
-    --shadow: 0 3px 8px rgba(59,52,42,0.18), 0 1px 2px rgba(59,52,42,0.12);
+    --due-ring: #B5533A;
+    --overdue-ring: #C9922E;
+    --done: #5B7065;
   }
 
   *{box-sizing:border-box;}
@@ -35,45 +35,17 @@
     color:var(--ink);
     font-family:'Work Sans', sans-serif;
     min-height:100vh;
-    padding:28px 20px 60px;
+    padding:28px 18px 60px;
   }
-
-  .wrap{max-width:920px;margin:0 auto;}
-
-  .save-warning{
-    display:none;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    background:#F4E3D0;
-    border:1px solid #C97B5A66;
-    color:#6B4A34;
-    font-family:'Work Sans', sans-serif;
-    font-size:0.82rem;
-    padding:9px 14px;
-    border-radius:8px;
-    margin-bottom:16px;
-  }
-  .save-warning button{
-    flex-shrink:0;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    padding:5px 10px;
-    border:1px solid #C97B5A;
-    border-radius:6px;
-    background:transparent;
-    color:#6B4A34;
-    cursor:pointer;
-  }
-  .save-warning button:hover{background:#C97B5A22;}
+  .wrap{max-width:820px;margin:0 auto;}
 
   header{
     display:flex;
-    align-items:flex-end;
+    align-items:flex-start;
     justify-content:space-between;
     flex-wrap:wrap;
     gap:14px;
-    margin-bottom:22px;
+    margin-bottom:18px;
     border-bottom:1px solid rgba(59,52,42,0.15);
     padding-bottom:16px;
   }
@@ -81,162 +53,332 @@
     font-family:'Fraunces', serif;
     font-weight:600;
     font-style:italic;
-    font-size:2.1rem;
+    font-size:2rem;
     margin:0;
-    letter-spacing:0.2px;
   }
   .tagline{
     font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
+    font-size:0.7rem;
     color:var(--ink-soft);
     text-transform:uppercase;
     letter-spacing:0.08em;
     margin-top:4px;
   }
-  .week-badge{
+  .tally-pill{
     display:flex;
     align-items:center;
-    gap:9px;
+    gap:8px;
     font-family:'IBM Plex Mono', monospace;
-    font-size:0.78rem;
+    font-size:0.8rem;
+    color:var(--ink-soft);
+    background:rgba(255,255,255,0.45);
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid rgba(59,52,42,0.15);
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .legend span{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
     color:var(--ink-soft);
     background:rgba(255,255,255,0.4);
-    padding:7px 12px;
+    padding:4px 9px;
     border-radius:999px;
-    border:1px solid rgba(59,52,42,0.12);
   }
-  .header-right{
+  .legend .dot{ width:8px;height:8px;border-radius:50%; }
+
+  .today-label{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:1.05rem;
+    margin-bottom:12px;
+  }
+
+  /* --- Recipe box holding today's cards --- */
+  .index-box{
+    position:relative;
     display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    gap:6px;
+    flex-wrap:wrap;
+    gap:20px 16px;
+    align-items:flex-start;
+    min-height:150px;
+    padding:32px 22px 34px;
+    border-radius:4px 8px 8px 8px;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.04) 0%, transparent 8%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.015) 0px, transparent 2px, transparent 5px),
+      linear-gradient(160deg, #E9E4D6 0%, #DDD6C3 55%, #CFC6AE 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(0,0,0,0.08),
+      inset 0 4px 12px rgba(120,105,75,0.18),
+      0 7px 16px rgba(60,50,30,0.12);
+    margin-bottom:26px;
   }
-  .save-btn{
+  .index-box::before{
+    content:'';
+    position:absolute;
+    top:20px; left:20px; right:20px;
+    height:3px;
+    background:linear-gradient(180deg, #E8E2D4, #A69C86 60%, #857A64);
+    border-radius:2px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.3);
+  }
+  .index-box::after{
+    content:'';
+    position:absolute;
+    top:6px; left:6px;
+    width:14px; height:14px;
+    border-radius:3px;
+    background:radial-gradient(circle at 35% 30%, #E9D9A8, #B8974F 70%);
+    box-shadow:0 1px 2px rgba(0,0,0,0.35);
+  }
+  .empty-box-msg{
     font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    letter-spacing:0.02em;
-    padding:6px 14px;
-    border:1px solid var(--ink);
-    border-radius:999px;
-    background:var(--ink);
-    color:var(--paper);
+    font-size:0.8rem;
+    color:rgba(60,40,20,0.6);
+    padding:20px 6px;
+    width:100%;
+    text-align:center;
+  }
+
+  .index-card{
+    width:206px;
+    min-height:118px;
+    background:#FBF6EA;
+    background-image:
+      linear-gradient(90deg, transparent 20px, transparent 21px, #D98B7A 21px, #D98B7A 22px, transparent 22px),
+      repeating-linear-gradient(180deg, transparent 0, transparent 19px, rgba(120,150,180,0.22) 20px);
+    border-radius:1px;
+    padding:16px 12px 14px 28px;
+    position:relative;
+    box-shadow:0 3px 7px rgba(0,0,0,0.25), 0 0.5px 0 rgba(255,255,255,0.4) inset;
     cursor:pointer;
-    transition:background 0.15s ease, transform 0.1s ease, color 0.15s ease;
+    font-size:0.86rem;
+    line-height:1.4;
+    color:#3a3226;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    border-left:5px solid transparent;
   }
-  .save-btn:hover{background:var(--ink-soft); border-color:var(--ink-soft);}
-  .save-btn:active{transform:scale(0.95);}
-  .save-btn.saved{
-    background:var(--paper);
-    color:#5B7065;
-    border-color:#5B7065;
+  .index-card:hover{ transform:translateY(-3px); box-shadow:0 9px 15px rgba(0,0,0,0.3); }
+  .index-card.cat-daily{ border-left-color:var(--daily); }
+  .index-card.cat-weekly{ border-left-color:var(--weekly); }
+  .index-card.cat-monthly{ border-left-color:var(--monthly); }
+  .index-card.cat-seasonal{ border-left-color:var(--seasonal); }
+  .index-card.cat-personal{ border-left-color:var(--personal); }
+
+  .index-card.status-due-today{ box-shadow:0 3px 7px rgba(0,0,0,0.25), 0 0 0 2px var(--due-ring), 0 0.5px 0 rgba(255,255,255,0.4) inset; }
+  .index-card.status-overdue{ box-shadow:0 3px 7px rgba(0,0,0,0.25), 0 0 0 2px var(--overdue-ring), 0 0.5px 0 rgba(255,255,255,0.4) inset; }
+  .index-card.status-due-today:hover{ box-shadow:0 9px 15px rgba(0,0,0,0.3), 0 0 0 2px var(--due-ring); }
+  .index-card.status-overdue:hover{ box-shadow:0 9px 15px rgba(0,0,0,0.3), 0 0 0 2px var(--overdue-ring); }
+  .index-card.card-done{ opacity:0.5; filter:saturate(0.6); }
+
+  .index-card::before{
+    content:'';
+    position:absolute;
+    top:-2px; left:50%;
+    transform:translateX(-50%);
+    width:9px; height:9px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #8a7d64, #5a5040 65%);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.15);
   }
-  .streak{
+  .card-cat-tag{
     font-family:'IBM Plex Mono', monospace;
-    font-size:0.68rem;
-    color:var(--ink-soft);
-    transition:transform 0.15s ease;
+    font-size:0.58rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:#6B4A2E;
+    margin-bottom:4px;
+    display:block;
   }
-  .streak.pop{transform:scale(1.25);}
-  .swatch{
-    width:13px;height:13px;border-radius:3px;
-    box-shadow:0 1px 2px rgba(0,0,0,0.25) inset, 0 0 0 1px rgba(0,0,0,0.08);
+  .card-name{ font-weight:500; }
+  .card-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    color:#7a6c58;
+    margin-top:8px;
+  }
+  .done-flag{
+    position:absolute;
+    top:-9px; left:14px;
+    width:20px; height:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:var(--done);
+    color:#fff;
+    font-size:0.72rem;
+    box-shadow:0 1px 3px rgba(0,0,0,0.3);
+  }
+  .overdue-flag{
+    position:absolute;
+    top:-9px; left:14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.58rem;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    padding:2px 8px;
+    border-radius:999px;
+    background:var(--overdue-ring);
+    color:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,0.3);
   }
 
-  .layout{
-    display:grid;
-    grid-template-columns:1fr 300px;
-    gap:34px;
-    align-items:start;
+  /* --- Manage section --- */
+  .manage-section{ margin-top:8px; }
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.1rem;
+    margin-bottom:12px;
   }
-  @media (max-width:760px){
-    .layout{grid-template-columns:1fr;}
-    .composer{flex-wrap:wrap;}
-    .composer input#taskInput{flex:1 1 100%;}
-  }
-
   .composer{
     display:flex;
+    flex-wrap:wrap;
     gap:8px;
-    margin-bottom:14px;
-  }
-  .composer input{
-    font-family:'Work Sans', sans-serif;
-    font-size:0.95rem;
-    padding:12px 14px;
-    border:1px solid rgba(59,52,42,0.25);
+    margin-bottom:16px;
+    padding:14px;
     border-radius:8px;
-    background:rgba(255,255,255,0.55);
+    background:rgba(255,255,255,0.4);
+    border:1px solid rgba(59,52,42,0.12);
+  }
+  .composer input, .composer select{
+    font-family:'Work Sans', sans-serif;
+    font-size:0.85rem;
+    padding:9px 10px;
+    border:1px solid rgba(59,52,42,0.25);
+    border-radius:6px;
+    background:rgba(255,255,255,0.7);
     color:var(--ink);
     outline:none;
   }
-  .composer input#taskInput{flex:1;}
-  .composer input#newCategoryInput{width:150px;}
-  .composer select#weekSelect,
-  .composer select#categoryInput{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.78rem;
-    padding:0 10px;
-    border:1px solid rgba(59,52,42,0.25);
-    border-radius:8px;
-    background:rgba(255,255,255,0.55);
-    color:var(--ink-soft);
-    outline:none;
-    cursor:pointer;
-    max-width:150px;
-  }
-  .composer select#weekSelect:focus,
-  .composer select#categoryInput:focus{
-    border-color:var(--ink-soft);
-    background:rgba(255,255,255,0.8);
-  }
-  .composer input:focus{
-    border-color:var(--ink-soft);
-    background:rgba(255,255,255,0.8);
-  }
-  .composer input::placeholder{color:#9A8E7C;}
-
-  .filters{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    margin-bottom:16px;
-  }
-  .filter-chip{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.68rem;
-    letter-spacing:0.02em;
-    padding:5px 11px;
-    border-radius:999px;
-    border:1px solid rgba(59,52,42,0.2);
-    background:rgba(255,255,255,0.4);
-    color:var(--ink-soft);
-    cursor:pointer;
-    user-select:none;
-    transition:background 0.12s ease, color 0.12s ease;
-  }
-  .filter-chip:hover{background:rgba(255,255,255,0.7);}
-  .filter-chip.active{
-    background:var(--ink);
-    color:var(--paper);
-    border-color:var(--ink);
-  }
+  .composer select{ font-family:'IBM Plex Mono', monospace; font-size:0.76rem; color:var(--ink-soft); }
+  .composer input#c-name{ flex:1 1 160px; }
+  .composer input#c-zone{ flex:0 1 130px; }
+  .composer input#c-points{ width:64px; }
   .composer button{
     font-family:'Work Sans', sans-serif;
     font-weight:600;
-    font-size:0.88rem;
+    font-size:0.85rem;
     padding:0 18px;
     border:none;
-    border-radius:8px;
+    border-radius:6px;
     background:var(--ink);
     color:var(--paper);
     cursor:pointer;
-    transition:transform 0.12s ease, background 0.15s ease;
   }
-  .composer button:hover{background:var(--ink-soft);}
-  .composer button:active{transform:scale(0.96);}
+  .composer button:hover{ background:var(--ink-soft); }
 
+  .all-list{ display:flex; flex-direction:column; gap:14px; }
+  .zone-group{ display:flex; flex-direction:column; }
+  .zone-divider{
+    position:relative;
+    align-self:flex-start;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    font-weight:600;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:6px 16px 6px 16px;
+    margin-left:10px;
+    color:#4A3A1E;
+    background:#D9C48A;
+    clip-path:polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 2px rgba(0,0,0,0.12);
+  }
+  .zone-divider .zone-count{ font-weight:400; opacity:0.7; margin-left:5px; }
+  .zone-folder{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    background:rgba(217,196,138,0.14);
+    border:1px solid rgba(74,58,30,0.16);
+    border-radius:0 8px 8px 8px;
+    padding:10px;
+    margin-top:-1px;
+  }
+  .all-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:rgba(255,255,255,0.5);
+    border:1px solid rgba(59,52,42,0.12);
+    border-left:4px solid transparent;
+    border-radius:5px;
+    padding:9px 12px;
+    font-size:0.82rem;
+  }
+  .all-row.cat-daily{ border-left-color:var(--daily); }
+  .all-row.cat-weekly{ border-left-color:var(--weekly); }
+  .all-row.cat-monthly{ border-left-color:var(--monthly); }
+  .all-row.cat-seasonal{ border-left-color:var(--seasonal); }
+  .all-row.cat-personal{ border-left-color:var(--personal); }
+
+  .all-row-left{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .all-row-sub{ font-family:'IBM Plex Mono', monospace; font-size:0.68rem; color:var(--ink-soft); }
+  .all-row-actions{ display:flex; gap:8px; flex-shrink:0; }
+  .icon-btn{
+    background:none; border:none; cursor:pointer;
+    color:var(--ink-soft); font-size:0.9rem; line-height:1; padding:2px;
+  }
+  .icon-btn:hover{ color:var(--ink); }
+  .icon-btn.del-btn:hover{ color:var(--due-ring); }
+
+  .edit-row{
+    display:flex; flex-wrap:wrap; gap:6px;
+    background:rgba(255,255,255,0.6);
+    border:1px solid rgba(59,52,42,0.2);
+    border-radius:6px;
+    padding:10px;
+    margin-top:4px;
+  }
+  .edit-row input, .edit-row select{
+    font-family:'Work Sans', sans-serif;
+    font-size:0.8rem;
+    padding:6px 8px;
+    border:1px solid rgba(59,52,42,0.25);
+    border-radius:5px;
+  }
+  .edit-row button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    padding:6px 12px;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .empty-list{ font-size:0.8rem; color:var(--ink-soft); padding:10px 2px; }
+
+  .caption{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-soft);
+    text-align:center;
+    margin-top:-14px;
+    margin-bottom:26px;
+  }
+
+  @media (max-width:520px){
+    .composer input#c-name{ flex:1 1 100%; }
+  }
+
+  /* --- View tabs (Today / This Week) --- */
+  /* --- Mini calendar (persistent, both views) --- */
   .mini-cal{
-    width:160px;
+    width:150px;
     flex-shrink:0;
     padding:8px 9px 9px;
     border-radius:8px;
@@ -244,105 +386,50 @@
     border:1px solid rgba(59,52,42,0.12);
     box-shadow:0 2px 6px rgba(59,52,42,0.08);
   }
-  .mini-cal-header{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    margin-bottom:5px;
-  }
+  .mini-cal-header{ display:flex; align-items:center; gap:4px; margin-bottom:5px; }
   .cal-nav{
-    font-family:'Work Sans', sans-serif;
-    font-size:0.75rem;
-    line-height:1;
-    width:16px; height:16px;
-    border-radius:50%;
-    border:1px solid rgba(59,52,42,0.2);
-    background:rgba(255,255,255,0.5);
-    color:var(--ink);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
-    padding:0;
+    font-family:'Work Sans', sans-serif; font-size:0.75rem; line-height:1;
+    width:16px; height:16px; border-radius:50%;
+    border:1px solid rgba(59,52,42,0.2); background:rgba(255,255,255,0.5);
+    color:var(--ink); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
   }
-  .cal-nav:hover{background:rgba(255,255,255,0.85);}
+  .cal-nav:hover{ background:rgba(255,255,255,0.85); }
   .cal-month-label{
-    font-family:'Fraunces', serif;
-    font-style:italic;
-    font-size:0.66rem;
-    color:var(--ink);
-    flex:1;
-    text-align:center;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    font-family:'Fraunces', serif; font-style:italic; font-size:0.64rem; color:var(--ink);
+    flex:1; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .cal-weekstart-toggle{
-    display:flex;
-    justify-content:center;
-    gap:2px;
-    padding:2px;
-    margin-top:5px;
-    border-radius:999px;
-    background:rgba(59,52,42,0.08);
+    display:flex; justify-content:center; gap:2px; padding:2px; margin-top:5px;
+    border-radius:999px; background:rgba(59,52,42,0.08);
   }
   .cal-ws-btn{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.5rem;
-    letter-spacing:0.02em;
-    padding:2px 6px;
-    border:none;
-    border-radius:999px;
-    background:none;
-    color:var(--ink-soft);
-    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace; font-size:0.5rem; letter-spacing:0.02em;
+    padding:2px 6px; border:none; border-radius:999px; background:none;
+    color:var(--ink-soft); cursor:pointer;
   }
   .cal-ws-btn.active{
-    background:var(--paper);
-    color:var(--ink);
-    font-weight:600;
+    background:var(--paper); color:var(--ink); font-weight:600;
     box-shadow:0 1px 2px rgba(0,0,0,0.15);
   }
-  .cal-weekday-row{
-    display:grid;
-    grid-template-columns:repeat(7, 1fr);
-    gap:1px;
-    margin-bottom:2px;
-  }
+  .cal-weekday-row{ display:grid; grid-template-columns:repeat(7, 1fr); gap:1px; margin-bottom:2px; }
   .cal-weekday-row span{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.46rem;
-    text-align:center;
-    color:var(--ink-soft);
-    letter-spacing:0.01em;
+    font-family:'IBM Plex Mono', monospace; font-size:0.44rem; text-align:center;
+    color:var(--ink-soft); letter-spacing:0.01em;
   }
-  .cal-grid{
-    display:grid;
-    grid-template-columns:repeat(7, 1fr);
-    gap:1px;
-  }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7, 1fr); gap:1px; }
   .cal-cell{
-    aspect-ratio:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'Work Sans', sans-serif;
-    font-size:0.52rem;
-    border-radius:2px;
-    color:#3a3226;
-    position:relative;
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    font-family:'Work Sans', sans-serif; font-size:0.5rem; border-radius:2px;
+    color:#3a3226; position:relative;
   }
-  .cal-cell.pad{color:#3a322677;}
-  .cal-cell.today{
-    box-shadow:0 0 0 1.5px var(--ink);
-    font-weight:700;
-  }
+  .cal-cell.pad{ color:#3a322677; }
+  .cal-cell.today{ box-shadow:0 0 0 1.5px var(--ink); font-weight:700; }
 
   .view-tabs{
     display:flex;
     gap:6px;
-    margin-bottom:18px;
+    margin-bottom:20px;
     border-bottom:1px solid rgba(59,52,42,0.15);
   }
   .view-tab{
@@ -356,404 +443,60 @@
     cursor:pointer;
     border-bottom:2px solid transparent;
     margin-bottom:-1px;
-    transition:color 0.15s ease, border-color 0.15s ease;
   }
-  .view-tab:hover{color:var(--ink);}
-  .view-tab.active{
-    color:var(--ink);
-    border-bottom-color:var(--ink);
-    font-weight:600;
-  }
+  .view-tab:hover{ color:var(--ink); }
+  .view-tab.active{ color:var(--ink); border-bottom-color:var(--ink); font-weight:600; }
 
-  .recurring-view{max-width:920px;margin:0 auto;}
-  .today-label{
-    font-family:'Fraunces', serif;
-    font-style:italic;
-    font-size:1rem;
+  /* --- One-off tasks: corkboard --- */
+  @media (max-width:700px){
+    .week-composer{ flex-wrap:wrap; }
+    .week-composer input#noteText{ flex:1 1 100%; }
+  }
+  .week-composer{ display:flex; gap:8px; margin-bottom:14px; }
+  .week-composer input{
+    font-family:'Work Sans', sans-serif;
+    font-size:0.9rem;
+    padding:10px 12px;
+    border:1px solid rgba(59,52,42,0.25);
+    border-radius:8px;
+    background:rgba(255,255,255,0.6);
     color:var(--ink);
-    margin-bottom:14px;
+    outline:none;
   }
-  .today-label .today-weekday{
+  .week-composer input#noteText{ flex:1; }
+  .week-composer input#noteCategory{ width:130px; }
+  .week-composer button{
+    font-family:'Work Sans', sans-serif;
     font-weight:600;
-    font-style:normal;
+    font-size:0.88rem;
+    padding:0 18px;
+    border:none;
+    border-radius:8px;
+    background:var(--ink);
+    color:var(--paper);
+    cursor:pointer;
   }
+  .week-composer button:hover{ background:var(--ink-soft); }
 
-  .view-toggle{
-    display:inline-flex;
-    gap:2px;
-    padding:3px;
-    margin-bottom:12px;
-    border-radius:999px;
-    background:rgba(59,52,42,0.08);
-  }
-  .toggle-btn{
+  .note-filters, .zone-filters{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .filter-chip{
     font-family:'IBM Plex Mono', monospace;
     font-size:0.68rem;
-    letter-spacing:0.02em;
-    padding:6px 13px;
-    border:none;
+    padding:5px 11px;
     border-radius:999px;
-    background:none;
+    border:1px solid rgba(59,52,42,0.2);
+    background:rgba(255,255,255,0.4);
     color:var(--ink-soft);
     cursor:pointer;
-    transition:background 0.12s ease, color 0.12s ease;
+    user-select:none;
   }
-  .toggle-btn:hover{color:var(--ink);}
-  .toggle-btn.active{
-    background:var(--paper);
-    color:var(--ink);
-    font-weight:600;
-    box-shadow:0 1px 3px rgba(0,0,0,0.15);
-  }
-  .index-tabs{
-    display:flex;
-    gap:3px;
-    padding-left:16px;
-    margin-bottom:-2px;
-    position:relative;
-    z-index:1;
-  }
-  .index-tabs-dense{
-    flex-wrap:wrap;
-    gap:2px 2px;
-    margin-bottom:6px;
-  }
-  .index-tab-num{
-    padding:5px 8px 6px;
-    min-width:22px;
-    text-align:center;
-    clip-path:none;
-    border-radius:4px 4px 0 0;
-  }
-  .index-tabs-dense .index-tab-num:nth-child(odd){transform:none;}
-  .week-start-marker{
-    width:3px;
-    align-self:stretch;
-    margin:0 1px;
-    border-radius:2px;
-    background:#D4753A;
-    box-shadow:0 0 4px rgba(212,117,58,0.6);
-  }
-  .index-tab{
-    position:relative;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.64rem;
-    letter-spacing:0.02em;
-    padding:6px 12px 16px 16px;
-    cursor:pointer;
-    border:none;
-    color:#4A3A1E;
-    background:#D9C48A;
-    clip-path:polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 2px rgba(0,0,0,0.12);
-    transition:background 0.12s ease, color 0.12s ease, transform 0.1s ease;
-  }
-  .index-tab:nth-child(odd){transform:translateY(3px);}
-  .index-tab:hover{background:#E6D29C;}
-  .index-tab.active{
-    background:#F6EFDF;
-    color:#2E2312;
-    font-weight:600;
-    transform:translateY(0);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.5), 0 -1px 3px rgba(0,0,0,0.1);
-  }
-  .index-tab.today::after{
-    content:'';
-    position:absolute;
-    top:4px; right:5px;
-    width:5px; height:5px;
-    border-radius:50%;
-    background:#B5533A;
-  }
-  .index-box{
-    position:relative;
-    display:flex;
-    flex-wrap:wrap;
-    gap:20px 16px;
-    align-items:flex-start;
-    min-height:170px;
-    padding:30px 24px 40px;
-    border-radius:4px 8px 8px 8px;
-    background:
-      linear-gradient(180deg, rgba(0,0,0,0.04) 0%, transparent 8%),
-      repeating-linear-gradient(90deg, rgba(0,0,0,0.015) 0px, transparent 2px, transparent 5px),
-      linear-gradient(160deg, #E9E4D6 0%, #DDD6C3 55%, #CFC6AE 100%);
-    box-shadow:
-      inset 0 0 0 1px rgba(0,0,0,0.08),
-      inset 0 4px 12px rgba(120,105,75,0.18),
-      0 7px 16px rgba(60,50,30,0.12);
-  }
-  .index-box::before{
-    /* the metal rail the cards hang from, like a real recipe/card box */
-    content:'';
-    position:absolute;
-    top:20px; left:20px; right:20px;
-    height:3px;
-    background:linear-gradient(180deg, #E8E2D4, #A69C86 60%, #857A64);
-    border-radius:2px;
-    box-shadow:0 1px 2px rgba(0,0,0,0.3);
-  }
-  .index-box::after{
-    /* little brass corner plate for that recipe-box hardware look */
-    content:'';
-    position:absolute;
-    top:6px; left:6px;
-    width:14px; height:14px;
-    border-radius:3px;
-    background:radial-gradient(circle at 35% 30%, #E9D9A8, #B8974F 70%);
-    box-shadow:0 1px 2px rgba(0,0,0,0.35);
-  }
-  .index-card{
-    width:210px;
-    min-height:130px;
-    background:#FBF6EA;
-    background-image:
-      linear-gradient(90deg, transparent 20px, transparent 21px, #D98B7A 21px, #D98B7A 22px, transparent 22px),
-      repeating-linear-gradient(180deg, transparent 0, transparent 19px, rgba(120,150,180,0.22) 20px);
-    border-radius:1px;
-    padding:16px 14px 16px 28px;
-    position:relative;
-    box-shadow:0 3px 7px rgba(0,0,0,0.25), 0 0.5px 0 rgba(255,255,255,0.4) inset;
-    cursor:pointer;
-    font-family:'Work Sans', sans-serif;
-    font-size:0.88rem;
-    line-height:1.4;
-    color:#3a3226;
-    transition:transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .index-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 9px 15px rgba(0,0,0,0.3);
-  }
-  .index-card.due-today{
-    box-shadow:0 3px 7px rgba(0,0,0,0.25), 0 0 0 2px #B5533A, 0 0.5px 0 rgba(255,255,255,0.4) inset;
-  }
-  .index-card.due-today:hover{
-    box-shadow:0 9px 15px rgba(0,0,0,0.3), 0 0 0 2px #B5533A;
-  }
-  .index-card.overdue{
-    box-shadow:0 3px 7px rgba(0,0,0,0.25), 0 0 0 2px #C9922E, 0 0.5px 0 rgba(255,255,255,0.4) inset;
-  }
-  .index-card.overdue:hover{
-    box-shadow:0 9px 15px rgba(0,0,0,0.3), 0 0 0 2px #C9922E;
-  }
-  .index-card.done-dormant{
-    opacity:0.55;
-    filter:saturate(0.6);
-  }
-  .today-flag{
-    position:absolute;
-    top:-9px; left:14px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.6rem;
-    letter-spacing:0.03em;
-    text-transform:uppercase;
-    padding:2px 8px;
-    border-radius:999px;
-    background:#B5533A;
-    color:#fff;
-    box-shadow:0 1px 3px rgba(0,0,0,0.3);
-  }
-  .today-flag.missed-flag{
-    background:#C9922E;
-  }
-  .done-check{
-    position:absolute;
-    top:-9px; left:14px;
-    width:20px; height:20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:50%;
-    background:#5B7065;
-    color:#fff;
-    font-size:0.72rem;
-    box-shadow:0 1px 3px rgba(0,0,0,0.3);
-  }
-  .skipped-note{
-    position:absolute;
-    top:-9px; left:14px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.58rem;
-    letter-spacing:0.02em;
-    padding:2px 8px;
-    border-radius:999px;
-    background:rgba(59,52,42,0.15);
-    color:#5a4f3f;
-  }
-  .done-btn, .skip-btn{
-    display:inline-block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.62rem;
-    letter-spacing:0.02em;
-    padding:4px 9px;
-    border-radius:6px;
-    border:1px solid rgba(0,0,0,0.2);
-    background:#fff;
-    color:#3a3226;
-    cursor:pointer;
-    margin-top:8px;
-    margin-right:5px;
-    transition:background 0.12s ease, color 0.12s ease;
-  }
-  .done-btn:hover{
-    background:#5B7065;
-    color:#fff;
-    border-color:#5B7065;
-  }
-  .skip-btn:hover{
-    background:#C9922E;
-    color:#fff;
-    border-color:#C9922E;
-  }
-  .index-card::before{
-    /* punched hole where the card hangs on the rail */
-    content:'';
-    position:absolute;
-    top:-2px; left:50%;
-    transform:translateX(-50%);
-    width:9px; height:9px;
-    border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #8a7d64, #5a5040 65%);
-    box-shadow:inset 0 1px 2px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.15);
-  }
-  .index-card .freq-badge{
-    display:inline-block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.58rem;
-    letter-spacing:0.03em;
-    text-transform:uppercase;
-    padding:2px 7px;
-    border-radius:999px;
-    background:rgba(90,60,25,0.1);
-    color:#6B4A2E;
-    margin-left:4px;
-  }
-  .index-card .spawn-btn{
-    position:absolute;
-    bottom:8px; right:8px;
-    width:22px; height:22px;
-    border-radius:50%;
-    border:1px solid rgba(60,40,20,0.3);
-    background:#fff;
-    color:#3a3226;
-    font-size:0.85rem;
-    line-height:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    box-shadow:0 1px 3px rgba(0,0,0,0.2);
-    transition:background 0.12s ease, color 0.12s ease, transform 0.1s ease;
-  }
-  .index-card .spawn-btn:hover{
-    background:#5B7065;
-    color:#fff;
-    transform:scale(1.1);
-  }
-  .index-card .del{
-    position:absolute;
-    top:-9px; right:-8px;
-    width:20px; height:20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    line-height:1;
-    color:rgba(0,0,0,0.5);
-    background:var(--paper);
-    border:1px solid rgba(59,52,42,0.25);
-    border-radius:50%;
-    box-shadow:0 1px 3px rgba(0,0,0,0.2);
-    cursor:pointer;
-    padding:0;
-    transition:background 0.12s ease, color 0.12s ease, transform 0.1s ease;
-  }
-  .index-card .del:hover{
-    color:#fff;
-    background:#B5533A;
-    border-color:#B5533A;
-    transform:scale(1.08);
-  }
-  .index-card .spawned-flash{
-    position:absolute;
-    inset:0;
-    border-radius:2px;
-    background:#5B706533;
-    opacity:0;
-    pointer-events:none;
-  }
-  .index-card.spawned .spawned-flash{
-    animation: spawn-flash 0.5s ease;
-  }
-  @keyframes spawn-flash{
-    0%{opacity:1;}
-    100%{opacity:0;}
-  }
-
-  .today-strip{
-    margin-bottom:16px;
-    padding:12px 16px;
-    border-radius:8px;
-    background:rgba(181,83,58,0.08);
-    border:1px solid rgba(181,83,58,0.25);
-  }
-  .today-strip h3{
-    margin:0 0 8px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.7rem;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:#8A4530;
-    font-weight:600;
-  }
-  .today-strip-list{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-  }
-  .strip-item{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    padding:5px 6px 5px 10px;
-    border-radius:999px;
-    background:#fff;
-    border:1px solid rgba(0,0,0,0.12);
-    font-family:'Work Sans', sans-serif;
-    font-size:0.8rem;
-    color:#3a3226;
-  }
-  .strip-item.overdue-item{
-    border-color:#C9922E;
-    background:#FBF1DE;
-  }
-  .strip-item .strip-check{
-    width:20px; height:20px;
-    border-radius:50%;
-    border:1px solid rgba(0,0,0,0.25);
-    background:#fff;
-    color:transparent;
-    cursor:pointer;
-    font-size:0.7rem;
-    line-height:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-  }
-  .strip-item .strip-check:hover{
-    background:#5B7065;
-    border-color:#5B7065;
-    color:#fff;
-  }
+  .filter-chip:hover{ background:rgba(255,255,255,0.7); }
+  .filter-chip.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
 
   .board-frame{
     padding:16px;
     border-radius:14px;
-    background:
-      linear-gradient(155deg, #B98F5C 0%, #A0754A 45%, #82593A 100%);
+    background:linear-gradient(155deg, #B98F5C 0%, #A0754A 45%, #82593A 100%);
     box-shadow:0 8px 20px rgba(45,30,15,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
   }
   .pending-list{
@@ -761,7 +504,7 @@
     flex-wrap:wrap;
     gap:16px 14px;
     align-content:flex-start;
-    min-height:150px;
+    min-height:140px;
     border-radius:7px;
     padding:22px 20px;
     position:relative;
@@ -779,191 +522,91 @@
       inset 0 2px 8px rgba(90,60,25,0.3),
       inset 0 -2px 6px rgba(90,60,25,0.18);
   }
-  .board-caption{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.7rem;
-    color:var(--ink-soft);
-    text-align:center;
-    letter-spacing:0.02em;
-    margin-top:10px;
-  }
   .empty-msg{
     font-family:'IBM Plex Mono', monospace;
     font-size:0.8rem;
     color:rgba(60,40,20,0.65);
     padding:18px 4px;
   }
-
   .note{
     width:150px;
     min-height:88px;
     padding:12px 12px 10px;
+    background:#fff;
     font-family:'Work Sans', sans-serif;
     font-size:0.86rem;
     line-height:1.35;
     color:#3a3226;
-    box-shadow:var(--shadow);
+    box-shadow:0 3px 8px rgba(59,52,42,0.18), 0 1px 2px rgba(59,52,42,0.12);
     cursor:pointer;
     position:relative;
     transition:transform 0.15s ease, box-shadow 0.15s ease;
     word-break:break-word;
   }
-  .note:hover{
-    transform:translateY(-3px) rotate(0deg) !important;
-    box-shadow:0 10px 18px rgba(20,12,4,0.35);
-  }
+  .note:hover{ transform:translateY(-3px) rotate(0deg) !important; box-shadow:0 10px 18px rgba(20,12,4,0.35); }
   .note .pin{
-    position:absolute;
-    top:-9px;left:50%;
-    transform:translateX(-50%);
-    width:13px;height:13px;
-    border-radius:50%;
+    position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+    width:13px; height:13px; border-radius:50%;
     background:radial-gradient(circle at 32% 28%, #F0917A, #C0452B 55%, #8C2E1A 100%);
     box-shadow:0 2px 3px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.4);
     z-index:2;
   }
   .note .del{
-    position:absolute;
-    top:-9px; right:-8px;
-    width:20px; height:20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    line-height:1;
-    color:rgba(0,0,0,0.5);
-    background:var(--paper);
-    border:1px solid rgba(59,52,42,0.25);
-    border-radius:50%;
-    box-shadow:0 1px 3px rgba(0,0,0,0.2);
-    cursor:pointer;
-    padding:0;
-    transition:background 0.12s ease, color 0.12s ease, transform 0.1s ease;
+    position:absolute; top:-9px; right:-8px; width:20px; height:20px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; line-height:1;
+    color:rgba(0,0,0,0.5); background:var(--paper);
+    border:1px solid rgba(59,52,42,0.25); border-radius:50%;
+    box-shadow:0 1px 3px rgba(0,0,0,0.2); cursor:pointer; padding:0;
   }
-  .note .del:hover{
-    color:#fff;
-    background:#B5533A;
-    border-color:#B5533A;
-    transform:scale(1.08);
-  }
+  .note .del:hover{ color:#fff; background:var(--due-ring); border-color:var(--due-ring); }
   .note .tag{
-    display:inline-block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.6rem;
-    letter-spacing:0.02em;
-    padding:2px 7px;
-    border-radius:999px;
-    background:rgba(255,255,255,0.55);
-    color:#3a3226;
-    margin-bottom:6px;
-    border:1px solid rgba(0,0,0,0.12);
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    padding:2px 7px; border-radius:999px; background:rgba(255,255,255,0.55);
+    color:#3a3226; margin-bottom:6px; border:1px solid rgba(0,0,0,0.12);
   }
-  .note .future-tag{
-    margin-left:4px;
-    border-style:dashed;
-    background:rgba(255,255,255,0.35);
-    color:#3a3226cc;
+  .note .edit-cat, .note .edit-input{
+    display:block; width:100%; font-family:'Work Sans', sans-serif; font-size:0.86rem;
+    color:#3a3226; background:rgba(255,255,255,0.55); border:1px solid rgba(0,0,0,0.2);
+    border-radius:4px; padding:4px 6px; outline:none; margin-bottom:4px;
   }
-  .note .edit-cat,
-  .index-card .edit-cat,
-  .index-card .edit-freq,
-  .index-card .edit-day{
-    display:block;
-    width:100%;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.68rem;
-    letter-spacing:0.02em;
-    color:#3a3226;
-    background:rgba(255,255,255,0.55);
-    border:1px solid rgba(0,0,0,0.2);
-    border-radius:4px;
-    padding:3px 20px 3px 6px;
-    outline:none;
-    appearance:none;
-    -webkit-appearance:none;
-    cursor:pointer;
-    background-image:linear-gradient(45deg, transparent 50%, #3a3226 50%), linear-gradient(135deg, #3a3226 50%, transparent 50%);
-    background-position:calc(100% - 12px) center, calc(100% - 8px) center;
-    background-size:4px 4px, 4px 4px;
-    background-repeat:no-repeat;
-    margin-bottom:4px;
-  }
-  .note .edit-input,
-  .index-card .edit-input{
-    display:block;
-    width:100%;
-    margin-top:6px;
-    font-family:'Work Sans', sans-serif;
-    font-size:0.86rem;
-    line-height:1.35;
-    color:#3a3226;
-    background:rgba(255,255,255,0.55);
-    border:1px solid rgba(0,0,0,0.25);
-    border-radius:4px;
-    padding:4px 6px;
-    outline:none;
-  }
-  .note .edit-cat:focus,
-  .note .edit-input:focus,
-  .index-card .edit-cat:focus,
-  .index-card .edit-freq:focus,
-  .index-card .edit-day:focus,
-  .index-card .edit-input:focus{
-    border-color:rgba(0,0,0,0.4);
-    background:rgba(255,255,255,0.8);
-  }
-
-  /* spike column */
-  .spike-col{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    position:sticky;
-    top:20px;
-  }
-  .spike-col h2{
+  .board-caption{
     font-family:'IBM Plex Mono', monospace;
     font-size:0.7rem;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
     color:var(--ink-soft);
-    margin:0 0 10px;
+    text-align:center;
+    margin-top:10px;
   }
+
+  /* Sized full-scale, then visually scaled down to sit in the header next
+     to the mini calendar (visible on both tabs) via a wrapper matching
+     the scaled footprint — keeps every absolute-positioned child's math
+     unchanged, since getBoundingClientRect already reflects the transform. */
+  .spike-widget{ display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:132px; }
+  .spike-widget h2{
+    font-family:'IBM Plex Mono', monospace; font-size:0.6rem; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--ink-soft); margin:0 0 4px;
+  }
+  .spike-stage-wrap{ position:relative; width:118px; height:190px; }
   .spike-stage{
-    position:relative;
-    width:230px;
-    height:400px;
+    position:relative; width:210px; height:340px;
+    transform:scale(0.56); transform-origin:top left;
   }
   .base{
-    position:absolute;
-    bottom:0; left:50%;
-    transform:translateX(-50%);
-    width:96px; height:34px;
-    border-radius:50% / 40%;
-    background:
-      radial-gradient(ellipse at 35% 25%, #D9C3A0, transparent 60%),
-      linear-gradient(180deg, #C6A876 0%, #9C7C4E 55%, #7C6038 100%);
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:90px; height:32px; border-radius:50% / 40%;
+    background:radial-gradient(ellipse at 35% 25%, #D9C3A0, transparent 60%), linear-gradient(180deg, #C6A876 0%, #9C7C4E 55%, #7C6038 100%);
     box-shadow:0 4px 8px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.25);
   }
   .rod{
-    position:absolute;
-    bottom:24px; left:50%;
-    transform:translateX(-50%);
-    width:3px; height:210px;
+    position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
+    width:3px; height:190px;
     background:linear-gradient(90deg, #C9BEA9, var(--wire) 40%, var(--wire-dark));
-    border-radius:2px 2px 0 0;
-    box-shadow:1px 0 2px rgba(0,0,0,0.15);
-    z-index:1;
+    border-radius:2px 2px 0 0; box-shadow:1px 0 2px rgba(0,0,0,0.15); z-index:1;
   }
   .rod::after{
-    content:'';
-    position:absolute;
-    top:-13px; left:50%;
-    transform:translateX(-50%);
-    width:0; height:0;
-    border-left:4px solid transparent;
-    border-right:4px solid transparent;
+    content:''; position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent;
     border-bottom:15px solid var(--wire-dark);
   }
   .rod.shake{ animation: shake 0.28s ease; }
@@ -974,31 +617,18 @@
     75%{transform:translateX(-50%) rotate(0.6deg);}
     100%{transform:translateX(-50%) rotate(0deg);}
   }
-
   .fleck{
-    position:absolute;
-    width:5px; height:9px;
-    border-radius:1px;
-    pointer-events:none;
-    z-index:5;
-    animation: fleck-fly 0.5s ease-out forwards;
+    position:absolute; width:5px; height:9px; border-radius:1px;
+    pointer-events:none; z-index:5; animation: fleck-fly 0.5s ease-out forwards;
   }
   @keyframes fleck-fly{
     0%{opacity:1; transform:translate(0,0) rotate(0deg);}
     100%{opacity:0; transform:var(--fend) rotate(var(--frot));}
   }
-
   .flash-msg{
-    position:absolute;
-    top:38%; left:50%;
-    transform:translateX(-50%);
-    font-family:'Fraunces', serif;
-    font-style:italic;
-    font-size:1rem;
-    color:var(--ink-soft);
-    pointer-events:none;
-    z-index:6;
-    animation: flash-up 0.9s ease-out forwards;
+    position:absolute; top:38%; left:50%; transform:translateX(-50%);
+    font-family:'Fraunces', serif; font-style:italic; font-size:1rem; color:var(--ink-soft);
+    pointer-events:none; z-index:6; animation: flash-up 0.9s ease-out forwards;
   }
   @keyframes flash-up{
     0%{opacity:0; transform:translate(-50%,6px);}
@@ -1007,22 +637,12 @@
     100%{opacity:0; transform:translate(-50%,-24px);}
   }
   .pile{
-    position:absolute;
-    bottom:38px; left:50%;
-    transform:translateX(-50%);
-    width:190px;
-    display:flex;
-    flex-direction:column-reverse;
-    align-items:center;
-    z-index:2;
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    width:170px; display:flex; flex-direction:column-reverse; align-items:center; z-index:2;
   }
   .spiked-note{
-    position:relative;
-    border-radius:1.5px;
-    cursor:pointer;
-    box-shadow:
-      0 1px 0 rgba(0,0,0,0.18),
-      0 -1px 0 rgba(255,255,255,0.22) inset;
+    position:relative; border-radius:1.5px; cursor:pointer;
+    box-shadow:0 1px 0 rgba(0,0,0,0.18), 0 -1px 0 rgba(255,255,255,0.22) inset;
     animation: drop 0.3s cubic-bezier(.34,1.56,.64,1);
   }
   @keyframes drop{
@@ -1030,55 +650,32 @@
     100%{transform:translateY(0) scale(1); opacity:1;}
   }
   .count-tag{
-    margin-top:10px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    color:var(--ink-soft);
-    text-align:center;
+    margin-top:2px; font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    color:var(--ink-soft); text-align:center; line-height:1.4;
   }
-  .legend{
-    margin-top:18px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    justify-content:center;
-    max-width:230px;
+  .week-legend{
+    margin-top:6px; display:flex; flex-wrap:wrap; gap:4px; justify-content:center; max-width:132px;
   }
-  .legend span{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.62rem;
-    color:var(--ink-soft);
-    background:rgba(255,255,255,0.4);
-    padding:3px 7px;
-    border-radius:999px;
+  .week-legend span{
+    display:flex; align-items:center; gap:3px; font-family:'IBM Plex Mono', monospace;
+    font-size:0.56rem; color:var(--ink-soft); background:rgba(255,255,255,0.4);
+    padding:2px 6px; border-radius:999px;
   }
-  .legend .dot{
-    width:8px;height:8px;border-radius:50%;
-  }
+  .week-legend .dot{ width:8px; height:8px; border-radius:50%; }
 
   @media (prefers-reduced-motion: reduce){
-    .spiked-note{animation:none;}
-    .note{transition:none;}
+    .spiked-note{ animation:none; }
+    .note{ transition:none; }
   }
-
-  ::selection{background:var(--c4); color:#2a2419;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="save-warning" id="saveWarning">
-    <span>Couldn't save your last change.</span>
-    <button id="retrySaveBtn">Try again</button>
-  </div>
-
   <header>
     <div>
-      <h1>The Spike</h1>
-      <div class="tagline">write it, spike it, know which tasks are behind</div>
+      <h1>The Card Box</h1>
+      <div class="tagline">pull today's cards, do them, file them back</div>
     </div>
 
     <div class="mini-cal" id="miniCal">
@@ -1095,104 +692,238 @@
       </div>
     </div>
 
-    <div class="header-right">
-      <button id="manualSaveBtn" class="save-btn">Save</button>
-      <div class="week-badge" id="weekBadge">
-        <span class="swatch" id="weekSwatch"></span>
-        <span id="weekLabel"></span>
+    <div class="spike-widget">
+      <h2>Spiked</h2>
+      <div class="spike-stage-wrap">
+        <div class="spike-stage">
+          <div class="rod" id="rod"></div>
+          <div class="base"></div>
+          <div class="pile" id="pile"></div>
+        </div>
       </div>
-      <div class="streak" id="streakLabel"></div>
+      <div class="count-tag" id="countTag"></div>
+      <div class="count-tag" id="spikedTodayTag"></div>
+      <div class="count-tag" style="margin-top:6px;">recent weeks</div>
+      <div class="week-legend" id="weekLegend"></div>
     </div>
+
+    <div class="tally-pill">⭐ <span id="tally">0 pts</span></div>
   </header>
 
   <div class="view-tabs">
-    <button class="view-tab active" id="tabBoard" data-view="board">This Week</button>
-    <button class="view-tab" id="tabRecurring" data-view="recurring">Recurring</button>
+    <button class="view-tab active" id="tabToday" data-view="today">Today</button>
+    <button class="view-tab" id="tabWeek" data-view="week">One-off tasks</button>
   </div>
 
-  <div class="layout" id="boardView">
+  <div id="todayView">
+    <div class="legend">
+      <span><span class="dot" style="background:var(--daily)"></span>Daily</span>
+      <span><span class="dot" style="background:var(--weekly)"></span>Weekly</span>
+      <span><span class="dot" style="background:var(--monthly)"></span>Monthly</span>
+      <span><span class="dot" style="background:var(--seasonal)"></span>Seasonal</span>
+      <span><span class="dot" style="background:var(--personal)"></span>Personal</span>
+    </div>
 
-    <div>
-      <div class="today-strip" id="todayStrip" style="display:none;">
-        <h3>Today's routine</h3>
-        <div class="today-strip-list" id="todayStripList"></div>
-      </div>
+    <div class="zone-filters" id="zoneFilters"></div>
 
+    <div class="today-label" id="todayLabel"></div>
+    <div class="index-box" id="indexBox"></div>
+    <div class="caption">tap a card to mark it done · tap again to undo</div>
+
+    <div class="manage-section">
+      <div class="section-title">Add a card</div>
       <div class="composer">
-        <input type="text" id="taskInput" placeholder="What needs doing?" maxlength="120" autocomplete="off">
-        <select id="categoryInput"></select>
-        <input type="text" id="newCategoryInput" placeholder="new category name" maxlength="24" autocomplete="off" style="display:none;">
-        <select id="weekSelect"></select>
+        <input type="text" id="c-name" placeholder="Card text" maxlength="80">
+        <input type="text" id="c-zone" placeholder="Zone (optional)" maxlength="24">
+        <select id="c-cat">
+          <option value="daily">Daily</option>
+          <option value="weekly" selected>Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="seasonal">Seasonal</option>
+          <option value="personal">Personal</option>
+        </select>
+        <select id="c-weekday">
+          <option value="mon">Monday</option>
+          <option value="tue">Tuesday</option>
+          <option value="wed">Wednesday</option>
+          <option value="thu">Thursday</option>
+          <option value="fri">Friday</option>
+          <option value="sat">Saturday</option>
+          <option value="sun">Sunday</option>
+        </select>
+        <select id="c-dom"></select>
+        <select id="c-month"></select>
+        <select id="c-seasonday"></select>
+        <select id="c-interval">
+          <option value="1">Every month</option>
+          <option value="2">Every 2 months</option>
+          <option value="3">Every 3 months (quarterly)</option>
+          <option value="4">Every 4 months</option>
+          <option value="6">Every 6 months</option>
+          <option value="12" selected>Every 12 months (yearly)</option>
+        </select>
+        <input type="number" id="c-points" min="1" max="50" value="5" placeholder="Pts">
         <button id="addBtn">Add</button>
       </div>
 
-      <div class="filters" id="filters"></div>
+      <button id="seedBtn" style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;padding:8px 14px;border:1px dashed var(--ink-soft);background:transparent;color:var(--ink-soft);border-radius:6px;cursor:pointer;margin-bottom:22px;">+ Load starter set: Kitchen &amp; Living room (18 cards)</button>
 
-      <div class="board-frame">
-        <div class="pending-list" id="pendingList"></div>
-      </div>
-      <div class="board-caption">tap a note to edit &middot; double-tap to spike it</div>
+      <div class="section-title">Whole box <span id="deckCount" style="font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:0.75rem;color:var(--ink-soft)"></span></div>
+      <div class="all-list" id="allList"></div>
     </div>
-
-    <div class="spike-col">
-      <h2>Spiked</h2>
-      <div class="spike-stage">
-        <div class="rod" id="rod"></div>
-        <div class="base"></div>
-        <div class="pile" id="pile"></div>
-      </div>
-      <div class="count-tag" id="countTag"></div>
-      <div class="legend" id="legend"></div>
-    </div>
-
   </div>
 
-  <div class="recurring-view" id="recurringView" style="display:none;">
-    <div class="today-label" id="recurTodayLabel"></div>
-    <div class="composer">
-      <input type="text" id="recurTaskInput" placeholder="Recurring task" maxlength="120" autocomplete="off">
-      <select id="recurCategoryInput"></select>
-      <select id="recurFrequencyInput">
-        <option value="daily">Daily</option>
-        <option value="weekly" selected>Weekly</option>
-        <option value="monthly">Monthly</option>
-        <option value="yearly">Yearly</option>
-        <option value="asneeded">As needed</option>
-      </select>
-      <select id="recurDayInput">
-        <option value="mon">Monday</option>
-        <option value="tue">Tuesday</option>
-        <option value="wed">Wednesday</option>
-        <option value="thu">Thursday</option>
-        <option value="fri">Friday</option>
-        <option value="sat">Saturday</option>
-        <option value="sun">Sunday</option>
-      </select>
-      <select id="recurDayOfMonthInput"></select>
-      <select id="recurMonthInput"></select>
-      <select id="recurYearlyDayInput"></select>
-      <button id="addRecurBtn">Add</button>
+  <div id="weekView" style="display:none;">
+    <div class="week-composer">
+      <input type="text" id="noteText" placeholder="One-off task for this week&hellip;" maxlength="120" autocomplete="off">
+      <input type="text" id="noteCategory" placeholder="category (optional)" maxlength="24" autocomplete="off" list="noteCategoryList">
+      <datalist id="noteCategoryList"></datalist>
+      <button id="addNoteBtn">Add</button>
     </div>
-    <div class="view-toggle" id="recurViewToggle">
-      <button class="toggle-btn" data-mode="freq">By frequency</button>
-      <button class="toggle-btn active" data-mode="day">By day</button>
-      <button class="toggle-btn" data-mode="month">By month</button>
+    <div class="note-filters" id="noteFilters"></div>
+    <div class="board-frame">
+      <div class="pending-list" id="pendingList"></div>
     </div>
-    <div class="index-tabs" id="indexTabs"></div>
-    <div class="index-box" id="indexBox"></div>
-    <div class="board-caption">tap a card to edit &middot; tap + to drop it onto this week's board</div>
+    <div class="board-caption">tap a note to edit &middot; double-tap to spike it &mdash; watch it land on the spike up top</div>
   </div>
+
 </div>
 
 <script>
-const PALETTE = [
-  {name:'clay',   hex:'#C97B5A'},
-  {name:'sage',   hex:'#8A9A7E'},
-  {name:'dusty blue', hex:'#7C93A8'},
-  {name:'ochre',  hex:'#D4A24C'},
-  {name:'rose',   hex:'#C98A94'},
-  {name:'olive',  hex:'#6E7B4F'},
+const CATS = ['daily','weekly','monthly','seasonal','personal'];
+const CAT_LABEL = {daily:'Daily', weekly:'Weekly', monthly:'Monthly', seasonal:'Seasonal', personal:'Personal'};
+const INTERVAL_OPTIONS = [
+  {value:1,  label:'Every month'},
+  {value:2,  label:'Every 2 months'},
+  {value:3,  label:'Every 3 months (quarterly)'},
+  {value:4,  label:'Every 4 months'},
+  {value:6,  label:'Every 6 months'},
+  {value:12, label:'Every 12 months (yearly)'},
 ];
+const INTERVAL_LABEL_SHORT = {1:'monthly', 2:'every 2mo', 3:'quarterly', 4:'every 4mo', 6:'twice a year', 12:'yearly'};
+const WEEKDAY_TO_JS = {sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6};
+const WEEKDAY_LABELS = {mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat', sun:'Sun'};
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const STORAGE_KEY = 'cardbox-state-v3';
+
+// ---- Storage adapter ----
+// Runs as a plain static page (localStorage) as well as a Claude
+// artifact (window.storage), so the load/save calls below can stay
+// agnostic to which one is actually backing them.
+const storage = (window.storage && typeof window.storage.get === 'function')
+  ? window.storage
+  : {
+      async get(key){
+        const raw = localStorage.getItem(key);
+        return raw === null ? null : { value: raw };
+      },
+      async set(key, value){
+        localStorage.setItem(key, value);
+      },
+    };
+
+let state = { cards: [], notes: [], points: 0 };
+let editingId = null;
+let currentZoneFilter = 'All';
+
+function uid(){ return 'c' + Date.now() + Math.floor(Math.random()*1000); }
+
+// ---- Due-date engine (adapted from The Spike) ----
+function toDateOnlyISO(date){
+  const y = date.getFullYear(), m = String(date.getMonth()+1).padStart(2,'0'), d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function todayISO(){ return toDateOnlyISO(new Date()); }
+function dateFromISO(iso){ const [y,m,d] = iso.split('-').map(Number); return new Date(y, m-1, d); }
+function daysInMonth(year, monthIdx0){ return new Date(year, monthIdx0+1, 0).getDate(); }
+function stripTime(date){ return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
+
+function nextWeekdayOnOrAfter(fromDate, dayCode){
+  const target = WEEKDAY_TO_JS[dayCode];
+  const d = new Date(fromDate);
+  const diff = (target - d.getDay() + 7) % 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+function nextDayOfMonthOnOrAfter(fromDate, dom){
+  let year = fromDate.getFullYear(), month = fromDate.getMonth();
+  for(let i=0;i<13;i++){
+    const clamped = Math.min(dom, daysInMonth(year, month));
+    const candidate = new Date(year, month, clamped);
+    if(candidate >= stripTime(fromDate)) return candidate;
+    month += 1; if(month > 11){ month = 0; year += 1; }
+  }
+  return fromDate;
+}
+function nextMonthDayOnOrAfter(fromDate, monthNum, dom){
+  let year = fromDate.getFullYear();
+  for(let i=0;i<2;i++){
+    const clamped = Math.min(dom, daysInMonth(year, monthNum-1));
+    const candidate = new Date(year, monthNum-1, clamped);
+    if(candidate >= stripTime(fromDate)) return candidate;
+    year += 1;
+  }
+  return fromDate;
+}
+
+function computeInitialDueDate(card){
+  const today = stripTime(new Date());
+  if(card.category === 'daily' || card.category === 'personal') return toDateOnlyISO(today);
+  if(card.category === 'weekly') return toDateOnlyISO(nextWeekdayOnOrAfter(today, card.weekday || 'mon'));
+  if(card.category === 'monthly') return toDateOnlyISO(nextDayOfMonthOnOrAfter(today, card.dayOfMonth || 1));
+  if(card.category === 'seasonal') return toDateOnlyISO(nextMonthDayOnOrAfter(today, card.month || 1, card.dayOfMonth || 1));
+}
+
+function advanceDueDate(card){
+  if(!card.nextDue) return computeInitialDueDate(card);
+  const current = dateFromISO(card.nextDue);
+  if(card.category === 'daily' || card.category === 'personal'){
+    const d = new Date(current); d.setDate(d.getDate()+1); return toDateOnlyISO(d);
+  }
+  if(card.category === 'weekly'){
+    const d = new Date(current); d.setDate(d.getDate()+7); return toDateOnlyISO(d);
+  }
+  if(card.category === 'monthly'){
+    let year = current.getFullYear(), month = current.getMonth()+1;
+    if(month > 11){ month = 0; year += 1; }
+    const clamped = Math.min(card.dayOfMonth || current.getDate(), daysInMonth(year, month));
+    return toDateOnlyISO(new Date(year, month, clamped));
+  }
+  if(card.category === 'seasonal'){
+    // Repeats every `intervalMonths` from the current due date (default 12,
+    // i.e. the original fixed-yearly behavior). A quarterly card set up
+    // with an anchor month of March advances Mar -> Jun -> Sep -> Dec -> Mar.
+    const interval = card.intervalMonths || 12;
+    let monthIdx = current.getMonth() + interval;
+    let year = current.getFullYear() + Math.floor(monthIdx / 12);
+    monthIdx = ((monthIdx % 12) + 12) % 12;
+    const clamped = Math.min(card.dayOfMonth || current.getDate(), daysInMonth(year, monthIdx));
+    return toDateOnlyISO(new Date(year, monthIdx, clamped));
+  }
+}
+
+function statusOf(card){
+  const t = todayISO();
+  if(!card.nextDue) return 'none';
+  if(card.nextDue < t) return 'overdue';
+  if(card.nextDue === t) return 'due-today';
+  return 'upcoming';
+}
+
+// ---- This Week: corkboard + spike (adapted from The Spike) ----
+const WEEK_PALETTE = [
+  {name:'clay',       hex:'#C97B5A'},
+  {name:'sage',       hex:'#8A9A7E'},
+  {name:'dusty blue', hex:'#7C93A8'},
+  {name:'ochre',      hex:'#D4A24C'},
+  {name:'rose',       hex:'#C98A94'},
+  {name:'olive',      hex:'#6E7B4F'},
+];
+const MAX_PILE = 100;
+const FLASH_WORDS = ['Spiked.','Done.','Gone.','Cleared.','Nice.','Sorted.','Off the board.'];
+let editingNoteId = null;
+let currentNoteFilter = 'All';
 
 function isoWeekKey(d){
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -1202,17 +933,26 @@ function isoWeekKey(d){
   const weekNum = 1 + Math.round(((date - firstThursday) / 86400000 - 3 + ((firstThursday.getUTCDay()+6)%7)) / 7);
   return {year:date.getUTCFullYear(), week:weekNum, key:date.getUTCFullYear()+'-W'+String(weekNum).padStart(2,'0')};
 }
-
 function colorForWeek(weekNum){
-  return PALETTE[((weekNum-1) % PALETTE.length + PALETTE.length) % PALETTE.length];
+  return WEEK_PALETTE[((weekNum-1) % WEEK_PALETTE.length + WEEK_PALETTE.length) % WEEK_PALETTE.length];
+}
+function tiltFor(id){
+  let h = 0;
+  for(let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i)) % 1000;
+  return ((h % 9) - 4);
+}
+function jitterFor(id){
+  let h = 0;
+  for(let i=0;i<id.length;i++) h = (h*17 + id.charCodeAt(i)*7) % 1000;
+  return ((h % 25) - 12);
 }
 
-// --- Mini calendar (persistent, both tabs) ---
+// ---- Mini calendar (persistent, both views) ----
 // Week-start (Mon/Sun) is purely a display choice for this calendar's layout.
-// The actual colour a given date belongs to is always the standard ISO
-// (Monday-based) week, same as everywhere else in the app — changing that
-// boundary would ripple into task colours, the recurring "by day" view, etc.
-const WEEKSTART_KEY = 'spike-weekstart-v1';
+// The colour a date belongs to is always the standard ISO (Monday-based)
+// week, same as the This Week notes — changing that boundary would ripple
+// into note colours too.
+const WEEKSTART_KEY = 'cardbox-weekstart-v1';
 let weekStartPref = 'mon'; // 'mon' | 'sun'
 let calViewYear = new Date().getFullYear();
 let calViewMonth = new Date().getMonth(); // 0-indexed
@@ -1233,18 +973,14 @@ function renderMiniCalendar(){
     btn.classList.toggle('active', btn.dataset.start === weekStartPref);
   });
 
-  // weekday header row, ordered per preference
   const weekdayRow = document.getElementById('calWeekdayRow');
-  const labels = weekStartPref === 'sun'
-    ? ['S','M','T','W','T','F','S']
-    : ['M','T','W','T','F','S','S'];
+  const labels = weekStartPref === 'sun' ? ['S','M','T','W','T','F','S'] : ['M','T','W','T','F','S','S'];
   weekdayRow.innerHTML = labels.map(l=>`<span>${l}</span>`).join('');
 
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
 
   const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
-  // getDay(): 0=Sun..6=Sat. Convert to an offset from the chosen start-of-week.
   const firstDow = firstOfMonth.getDay();
   const leadingBlanks = weekStartPref === 'sun' ? firstDow : (firstDow + 6) % 7;
 
@@ -1252,10 +988,7 @@ function renderMiniCalendar(){
   const prevMonthDays = daysInMonth(calViewYear, calViewMonth - 1 < 0 ? 11 : calViewMonth - 1);
   const prevMonthYear = calViewMonth - 1 < 0 ? calViewYear - 1 : calViewYear;
   const prevMonthIdx = calViewMonth - 1 < 0 ? 11 : calViewMonth - 1;
-  const nextMonthYear = calViewMonth + 1 > 11 ? calViewYear + 1 : calViewYear;
-  const nextMonthIdx = calViewMonth + 1 > 11 ? 0 : calViewMonth + 1;
 
-  // build a flat list of {date, inMonth} covering full weeks (up to 6 rows x 7)
   const cells = [];
   for(let i=leadingBlanks; i>0; i--){
     cells.push({date: new Date(prevMonthYear, prevMonthIdx, prevMonthDays - i + 1), inMonth:false});
@@ -1269,22 +1002,21 @@ function renderMiniCalendar(){
     cells.push({date: next, inMonth:false});
   }
 
-  const now = new Date();
-  const todayKey = toDateOnlyISO(now);
+  const todayKey = todayISO();
 
-  for(let i=0; i<cells.length; i+=7){
-    const row = cells.slice(i, i+7);
-    const {week} = isoWeekKey(row[0].date); // any date in the row gives the row's real ISO week
+  // Colour each day by its own ISO week rather than the displayed row's —
+  // ISO weeks are Monday-based, so with the Sunday week-start toggle a row
+  // can straddle two ISO weeks and its first cell isn't a safe stand-in.
+  cells.forEach(cell=>{
+    const {week} = isoWeekKey(cell.date);
     const color = colorForWeek(week);
-    row.forEach(cell=>{
-      const el = document.createElement('div');
-      el.className = 'cal-cell' + (cell.inMonth ? '' : ' pad') + (toDateOnlyISO(cell.date) === todayKey ? ' today' : '');
-      el.style.background = color.hex + '3D'; // soft tint, keeps the number readable
-      el.textContent = cell.date.getDate();
-      el.title = color.name + ' \u00b7 week ' + week;
-      grid.appendChild(el);
-    });
-  }
+    const el = document.createElement('div');
+    el.className = 'cal-cell' + (cell.inMonth ? '' : ' pad') + (toDateOnlyISO(cell.date) === todayKey ? ' today' : '');
+    el.style.background = color.hex + '3D';
+    el.textContent = cell.date.getDate();
+    el.title = color.name + ' · week ' + week;
+    grid.appendChild(el);
+  });
 }
 
 function shiftCalMonth(delta){
@@ -1294,187 +1026,167 @@ function shiftCalMonth(delta){
   renderMiniCalendar();
 }
 
-function tiltFor(id){
-  // deterministic pseudo-random tilt from id string
-  let h = 0;
-  for(let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i)) % 1000;
-  return ((h % 9) - 4); // -4..4 deg
-}
+document.getElementById('calPrevBtn').addEventListener('click', () => shiftCalMonth(-1));
+document.getElementById('calNextBtn').addEventListener('click', () => shiftCalMonth(1));
+document.querySelectorAll('.cal-ws-btn').forEach(btn=>{
+  btn.addEventListener('click', () => {
+    weekStartPref = btn.dataset.start;
+    saveWeekStartPref();
+    renderMiniCalendar();
+  });
+});
 
-function jitterFor(id){
-  // deterministic pseudo-random horizontal offset, gives the fanned/uneven stack edge
-  let h = 0;
-  for(let i=0;i<id.length;i++) h = (h*17 + id.charCodeAt(i)*7) % 1000;
-  return ((h % 25) - 12); // -12..12 px
-}
-
-let tasks = [];
-let recurring = [];
-let currentFilter = 'All';
-let editingId = null;
-let editingRecurId = null;
-let pendingNewCategory = null;
-const NEW_CATEGORY_VALUE = '__new__';
-const RECUR_STORAGE_KEY = 'spike-recurring-v1';
-const FREQ_LABELS = {daily:'Daily', weekly:'Weekly', monthly:'Monthly', yearly:'Yearly', asneeded:'As needed'};
-const FREQ_ORDER = ['daily','weekly','monthly','yearly','asneeded'];
-const WEEKDAY_ORDER = ['mon','tue','wed','thu','fri','sat','sun'];
-const WEEKDAY_LABELS = {mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat', sun:'Sun'};
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let currentRecurFilter = 'All';
-let recurViewMode = 'day'; // 'freq' | 'day' | 'month'
-let currentDayOfMonthFilter = null; // 1-31, set to today's date on first switch to "By day"
-let currentMonthFilter = null; // 1-12, set to current month on first switch to "By month"
-
-function todayDayOfMonth(){
-  return new Date().getDate();
-}
-function todayMonth(){
-  return new Date().getMonth() + 1;
-}
-function todayWeekdayCode(){
-  const map = ['sun','mon','tue','wed','thu','fri','sat'];
-  return map[new Date().getDay()];
-}
-
-// ---- Due-date engine for recurring cards ----
-// Dates are stored/compared as local-time 'YYYY-MM-DD' strings so day
-// boundaries match the person's actual calendar, not UTC.
-
-function toDateOnlyISO(date){
-  const y = date.getFullYear();
-  const m = String(date.getMonth()+1).padStart(2,'0');
-  const d = String(date.getDate()).padStart(2,'0');
-  return `${y}-${m}-${d}`;
-}
-function todayISO(){
-  return toDateOnlyISO(new Date());
-}
-function dateFromISO(iso){
-  const [y,m,d] = iso.split('-').map(Number);
-  return new Date(y, m-1, d);
-}
-function daysInMonth(year, monthIdx0){ // monthIdx0: 0=Jan
-  return new Date(year, monthIdx0+1, 0).getDate();
-}
-const WEEKDAY_TO_JS = {sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6};
-
-// Smallest date >= fromDate whose weekday matches dayCode ('mon'..'sun')
-function nextWeekdayOnOrAfter(fromDate, dayCode){
-  const target = WEEKDAY_TO_JS[dayCode];
-  const d = new Date(fromDate);
-  const diff = (target - d.getDay() + 7) % 7;
-  d.setDate(d.getDate() + diff);
-  return d;
-}
-// Smallest date >= fromDate whose day-of-month matches dayOfMonth (clamped to short months)
-function nextDayOfMonthOnOrAfter(fromDate, dom){
-  let year = fromDate.getFullYear();
-  let month = fromDate.getMonth();
-  for(let i=0;i<13;i++){
-    const clampedDay = Math.min(dom, daysInMonth(year, month));
-    const candidate = new Date(year, month, clampedDay);
-    if(candidate >= stripTime(fromDate)) return candidate;
-    month += 1;
-    if(month > 11){ month = 0; year += 1; }
+// ---- Persistence ----
+async function loadState(){
+  let isFreshBox = false;
+  try{
+    const res = await storage.get(STORAGE_KEY, false);
+    if(res && res.value) state = JSON.parse(res.value);
+    else isFreshBox = true;
+  }catch(e){ isFreshBox = true; console.log('Starting a fresh box.'); }
+  if(!state.cards) state.cards = [];
+  if(!state.notes) state.notes = [];
+  if(typeof state.points !== 'number') state.points = 0;
+  if(isFreshBox && state.cards.length === 0){
+    seedStarterCards();
+    await saveState();
   }
-  return fromDate; // fallback, shouldn't happen
+  render();
 }
-// Smallest date >= fromDate whose month+day-of-month matches (clamped for e.g. Feb 29)
-function nextMonthDayOnOrAfter(fromDate, monthNum, dom){
-  let year = fromDate.getFullYear();
-  for(let i=0;i<2;i++){
-    const clampedDay = Math.min(dom, daysInMonth(year, monthNum-1));
-    const candidate = new Date(year, monthNum-1, clampedDay);
-    if(candidate >= stripTime(fromDate)) return candidate;
-    year += 1;
-  }
-  return fromDate;
-}
-function stripTime(date){
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+async function saveState(){
+  try{ await storage.set(STORAGE_KEY, JSON.stringify(state), false); }
+  catch(e){ console.error('Save failed', e); }
 }
 
-// The first due date for a brand-new (or just re-scheduled) card, starting from today
-function computeInitialDueDate(r){
-  const today = stripTime(new Date());
-  if(r.frequency === 'daily') return toDateOnlyISO(today);
-  if(r.frequency === 'weekly') return toDateOnlyISO(nextWeekdayOnOrAfter(today, r.day || 'mon'));
-  if(r.frequency === 'monthly') return toDateOnlyISO(nextDayOfMonthOnOrAfter(today, r.dayOfMonth || 1));
-  if(r.frequency === 'yearly') return toDateOnlyISO(nextMonthDayOnOrAfter(today, r.month || 1, r.dayOfMonth || 1));
-  return null; // asneeded has no due date
-}
-
-// Advance a card's due date forward by exactly one cycle, from its OWN current
-// due date (not from today) — so the cadence stays exact even if completed late.
-function advanceDueDate(r){
-  if(!r.nextDueDate) return computeInitialDueDate(r);
-  const current = dateFromISO(r.nextDueDate);
-  if(r.frequency === 'daily'){
-    const d = new Date(current); d.setDate(d.getDate()+1);
-    return toDateOnlyISO(d);
-  }
-  if(r.frequency === 'weekly'){
-    const d = new Date(current); d.setDate(d.getDate()+7);
-    return toDateOnlyISO(d);
-  }
-  if(r.frequency === 'monthly'){
-    let year = current.getFullYear(), month = current.getMonth()+1;
-    if(month > 11){ month = 0; year += 1; }
-    const clampedDay = Math.min(r.dayOfMonth || current.getDate(), daysInMonth(year, month));
-    return toDateOnlyISO(new Date(year, month, clampedDay));
-  }
-  if(r.frequency === 'yearly'){
-    const year = current.getFullYear()+1;
-    const monthIdx = (r.month||1)-1;
-    const clampedDay = Math.min(r.dayOfMonth || current.getDate(), daysInMonth(year, monthIdx));
-    return toDateOnlyISO(new Date(year, monthIdx, clampedDay));
-  }
-  return null;
-}
-
-function recurStatus(r){
-  if(r.frequency === 'asneeded' || !r.nextDueDate) return 'none';
-  const t = todayISO();
-  if(r.nextDueDate < t) return 'overdue';
-  if(r.nextDueDate === t) return 'due-today';
-  return 'upcoming';
-}
-
-function populateComposerCategorySelect(knownCats){
-  const sel = document.getElementById('categoryInput');
-  const prevValue = (sel.value && sel.value !== NEW_CATEGORY_VALUE) ? sel.value : null;
-  sel.innerHTML = knownCats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
-    + `<option value="${NEW_CATEGORY_VALUE}">+ Add new category&hellip;</option>`;
-  if(pendingNewCategory && knownCats.includes(pendingNewCategory)){
-    sel.value = pendingNewCategory;
-    pendingNewCategory = null;
-  } else if(prevValue && knownCats.includes(prevValue)){
-    sel.value = prevValue;
+// ---- Actions ----
+function toggleDone(id){
+  const card = state.cards.find(c => c.id === id);
+  if(!card) return;
+  const status = statusOf(card);
+  if(status === 'due-today' || status === 'overdue'){
+    card.nextDue = advanceDueDate(card);
+    card.lastDone = todayISO();
+    state.points += Number(card.points) || 0;
   } else {
-    sel.value = knownCats[0] || 'General';
+    // undo: was just completed today via this same click cycle isn't tracked separately here,
+    // so allow reverting only if it was completed today
+    if(card.lastDone === todayISO()){
+      card.nextDue = todayISO();
+      card.lastDone = null;
+      state.points -= Number(card.points) || 0;
+    }
   }
-}
-const STORAGE_KEY = 'spike-tasks-v1';
-const MAX_PILE = 100;
-const DEFAULT_CATEGORIES = ['Work','Clients','Home','Personal'];
-const CATEGORY_TONES = ['#8B7355','#5B7065','#7A6C8F','#9C6B53','#4F6B6A','#8A6D5C','#6C7A89','#96603F'];
-const FLASH_WORDS = ['Spiked.','Done.','Gone.','Cleared.','Nice.','Sorted.','Off the board.'];
-
-function getKnownCategories(){
-  return Array.from(new Set([
-    ...DEFAULT_CATEGORIES,
-    ...tasks.map(t=>t.category),
-    ...recurring.map(r=>r.category)
-  ])).sort();
+  saveState();
+  render();
 }
 
-function categoryColor(cat){
-  cat = cat || 'General';
-  let h=0;
-  for(let i=0;i<cat.length;i++) h = (h*31 + cat.charCodeAt(i)) % 1000;
-  return CATEGORY_TONES[h % CATEGORY_TONES.length];
+function readComposerCard(){
+  const name = document.getElementById('c-name').value.trim();
+  const zone = document.getElementById('c-zone').value.trim();
+  const category = document.getElementById('c-cat').value;
+  const points = document.getElementById('c-points').value || 5;
+  const weekday = document.getElementById('c-weekday').value;
+  const dayOfMonth = Number(document.getElementById('c-dom').value);
+  const month = Number(document.getElementById('c-month').value);
+  const seasonDay = Number(document.getElementById('c-seasonday').value);
+  const intervalMonths = Number(document.getElementById('c-interval').value);
+  return { name, zone, category, points, weekday, dayOfMonth, month, seasonDay, intervalMonths };
+}
+
+function addCard(){
+  const f = readComposerCard();
+  if(!f.name) return;
+  const card = {
+    id: uid(), name: f.name, zone: f.zone, category: f.category, points: f.points,
+    weekday: f.weekday, dayOfMonth: f.category === 'monthly' ? f.dayOfMonth : f.seasonDay,
+    month: f.month, intervalMonths: f.category === 'seasonal' ? f.intervalMonths : undefined,
+    nextDue: null, lastDone: null
+  };
+  card.nextDue = computeInitialDueDate(card);
+  state.cards.push(card);
+  document.getElementById('c-name').value = '';
+  document.getElementById('c-zone').value = '';
+  saveState();
+  render();
+}
+
+function deleteCard(id){
+  state.cards = state.cards.filter(c => c.id !== id);
+  if(editingId === id) editingId = null;
+  saveState();
+  render();
+}
+
+function startEdit(id){ editingId = id; render(); }
+function cancelEdit(){ editingId = null; render(); }
+
+function saveEdit(id){
+  const card = state.cards.find(c => c.id === id);
+  if(!card) return;
+  card.name = document.getElementById('e-name').value.trim() || card.name;
+  card.zone = document.getElementById('e-zone').value.trim();
+  card.points = document.getElementById('e-points').value || card.points;
+  const newCat = document.getElementById('e-cat').value;
+  const catChanged = newCat !== card.category;
+  card.category = newCat;
+  if(document.getElementById('e-weekday')) card.weekday = document.getElementById('e-weekday').value;
+  if(document.getElementById('e-dom')) card.dayOfMonth = Number(document.getElementById('e-dom').value);
+  if(document.getElementById('e-month')) card.month = Number(document.getElementById('e-month').value);
+  if(document.getElementById('e-seasonday')) card.dayOfMonth = Number(document.getElementById('e-seasonday').value);
+  if(document.getElementById('e-interval')) card.intervalMonths = Number(document.getElementById('e-interval').value);
+  if(catChanged) card.nextDue = computeInitialDueDate(card);
+  editingId = null;
+  saveState();
+  render();
+}
+
+// ---- Composer field visibility ----
+function updateComposerVisibility(){
+  const cat = document.getElementById('c-cat').value;
+  document.getElementById('c-weekday').style.display = cat === 'weekly' ? '' : 'none';
+  document.getElementById('c-dom').style.display = cat === 'monthly' ? '' : 'none';
+  document.getElementById('c-month').style.display = cat === 'seasonal' ? '' : 'none';
+  document.getElementById('c-seasonday').style.display = cat === 'seasonal' ? '' : 'none';
+  document.getElementById('c-interval').style.display = cat === 'seasonal' ? '' : 'none';
+}
+document.getElementById('c-cat').addEventListener('change', updateComposerVisibility);
+document.getElementById('addBtn').addEventListener('click', addCard);
+document.getElementById('c-name').addEventListener('keydown', e => { if(e.key === 'Enter') addCard(); });
+
+function populateDateSelects(){
+  const dom = document.getElementById('c-dom');
+  dom.innerHTML = Array.from({length:31}, (_,i)=>i+1).map(d=>`<option value="${d}">${d}</option>`).join('');
+  const month = document.getElementById('c-month');
+  month.innerHTML = MONTH_NAMES.map((n,i)=>`<option value="${i+1}">${n}</option>`).join('');
+  const seasonDay = document.getElementById('c-seasonday');
+  seasonDay.innerHTML = Array.from({length:31}, (_,i)=>i+1).map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+populateDateSelects();
+updateComposerVisibility();
+
+// ---- This Week: note actions ----
+function getKnownNoteCategories(){
+  return Array.from(new Set(state.notes.map(n => n.category).filter(Boolean))).sort();
+}
+
+function addNote(){
+  const textEl = document.getElementById('noteText');
+  const catEl = document.getElementById('noteCategory');
+  const text = textEl.value.trim();
+  if(!text) return;
+  const now = new Date();
+  const {week, key} = isoWeekKey(now);
+  const color = colorForWeek(week);
+  const cat = catEl.value.trim() || 'General';
+  state.notes.push({
+    id: uid(), text, category: cat, weekKey: key, weekNum: week,
+    colorHex: color.hex, colorName: color.name,
+    spiked: false, createdAt: now.toISOString(), spikedAt: null
+  });
+  textEl.value = '';
+  catEl.value = '';
+  saveState();
+  renderWeek();
 }
 
 let audioCtx = null;
@@ -1483,8 +1195,6 @@ function playThunk(){
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     if(audioCtx.state === 'suspended') audioCtx.resume();
     const t0 = audioCtx.currentTime;
-
-    // low thud
     const osc = audioCtx.createOscillator();
     const oGain = audioCtx.createGain();
     osc.type = 'sine';
@@ -1495,7 +1205,6 @@ function playThunk(){
     osc.connect(oGain).connect(audioCtx.destination);
     osc.start(t0); osc.stop(t0+0.15);
 
-    // paper-ish noise tick
     const bufferSize = audioCtx.sampleRate * 0.05;
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -1511,21 +1220,29 @@ function playThunk(){
     noise.start(t0);
   }catch(e){ /* audio not available, silently skip */ }
 }
-
-function vibrate(){
+function vibrateShort(){
   if(navigator.vibrate) navigator.vibrate(16);
 }
-
-function spawnFlecks(originEl, color){
+function shakeRod(){
+  const rod = document.getElementById('rod');
+  if(!rod) return;
+  rod.classList.remove('shake');
+  void rod.offsetWidth;
+  rod.classList.add('shake');
+}
+function spawnFlecks(color){
   const stage = document.querySelector('.spike-stage');
-  const rect = originEl.getBoundingClientRect();
-  const stageRect = stage.getBoundingClientRect();
-  const originX = rect.left + rect.width/2 - stageRect.left;
-  const originY = rect.top - stageRect.top;
+  if(!stage) return;
+  // Fixed point in the stage's own (pre-scale) coordinate space, roughly
+  // where the pile sits — the spike now lives in the header, far from
+  // wherever the note was clicked, so bursting from the note's actual
+  // screen position no longer reads as "landing on the spike."
+  const originX = 105;
+  const originY = 250;
   for(let i=0;i<7;i++){
     const f = document.createElement('div');
     f.className='fleck';
-    const angle = (Math.random()*Math.PI) - Math.PI/2 - Math.PI/2; // spread upward-ish
+    const angle = (Math.random()*Math.PI) - Math.PI;
     const dist = 26 + Math.random()*34;
     const ex = Math.cos(angle)*dist;
     const ey = Math.sin(angle)*dist - 10;
@@ -1538,9 +1255,9 @@ function spawnFlecks(originEl, color){
     setTimeout(()=>f.remove(), 550);
   }
 }
-
 function flashMessage(){
   const stage = document.querySelector('.spike-stage');
+  if(!stage) return;
   const el = document.createElement('div');
   el.className='flash-msg';
   el.textContent = FLASH_WORDS[Math.floor(Math.random()*FLASH_WORDS.length)];
@@ -1548,411 +1265,178 @@ function flashMessage(){
   setTimeout(()=>el.remove(), 950);
 }
 
-function shakeRod(){
-  const rod = document.getElementById('rod');
-  rod.classList.remove('shake');
-  void rod.offsetWidth;
-  rod.classList.add('shake');
-}
-
-function todayStr(){
-  return new Date().toDateString();
-}
-
-function loadTasks(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    tasks = raw ? JSON.parse(raw) : [];
-  }catch(e){
-    // private/incognito mode can block storage entirely, or the saved
-    // data got corrupted somehow — fall back to an empty board rather
-    // than a broken page, and let the user know saving may not work.
-    console.error('Could not load saved tasks', e);
-    tasks = [];
-    showSaveWarning('Your browser is blocking local storage, so tasks won\u2019t be saved between visits.');
-  }
-  // migrate any tasks saved before categories existed
-  let migrated = false;
-  tasks.forEach(t=>{
-    if(!t.category){ t.category = 'General'; migrated = true; }
-  });
-  if(migrated) saveTasks();
-  render();
-}
-
-function saveTasks(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    hideSaveWarning();
-    return true;
-  }catch(e){
-    console.error('Could not save', e);
-    showSaveWarning('Couldn\u2019t save \u2014 your browser\u2019s local storage may be full or disabled.');
-    return false;
-  }
-}
-
-function showSaveWarning(message){
-  const el = document.getElementById('saveWarning');
-  if(!el) return;
-  if(message) el.querySelector('span').textContent = message;
-  el.style.display = 'flex';
-}
-function hideSaveWarning(){
-  const el = document.getElementById('saveWarning');
-  if(el) el.style.display = 'none';
-}
-
-function loadRecurring(){
-  try{
-    const raw = localStorage.getItem(RECUR_STORAGE_KEY);
-    recurring = raw ? JSON.parse(raw) : [];
-  }catch(e){
-    console.error('Could not load recurring tasks', e);
-    recurring = [];
-  }
-  // migrate any cards saved before the due-date engine existed
-  let migrated = false;
-  recurring.forEach(r=>{
-    if(r.frequency === 'yearly' && !r.dayOfMonth){ r.dayOfMonth = 1; migrated = true; }
-    if(r.lastAction === undefined){ r.lastAction = null; migrated = true; }
-    if(r.lastActionDate === undefined){ r.lastActionDate = null; migrated = true; }
-    if(!r.nextDueDate && r.frequency !== 'asneeded'){ r.nextDueDate = computeInitialDueDate(r); migrated = true; }
-  });
-  if(migrated) saveRecurring();
-  renderRecurring();
-  renderTodayStrip();
-}
-
-function saveRecurring(){
-  try{
-    localStorage.setItem(RECUR_STORAGE_KEY, JSON.stringify(recurring));
-    return true;
-  }catch(e){
-    console.error('Could not save recurring tasks', e);
-    showSaveWarning('Couldn\u2019t save \u2014 your browser\u2019s local storage may be full or disabled.');
-    return false;
-  }
-}
-
-function addTask(text, category, weekOffset){
-  weekOffset = weekOffset || 0;
-  const now = new Date();
-  const targetDate = new Date(now.getTime() + weekOffset*7*86400000);
-  const {week, key} = isoWeekKey(targetDate);
-  const color = colorForWeek(week);
-  const cat = (category && category.trim()) ? category.trim() : 'General';
-  const task = {
-    id: 't'+Date.now()+Math.random().toString(36).slice(2,7),
-    text: text.trim(),
-    category: cat,
-    weekKey: key,
-    weekNum: week,
-    colorHex: color.hex,
-    colorName: color.name,
-    spiked: false,
-    createdAt: now.toISOString(),
-    spikedAt: null
-  };
-  tasks.push(task);
-  saveTasks();
-  render();
-}
-
-function spikeTask(id, originEl){
-  const t = tasks.find(x=>x.id===id);
-  if(!t) return;
-  t.spiked = true;
-  t.spikedAt = new Date().toISOString();
-  saveTasks();
-
+function spikeNote(id){
+  const n = state.notes.find(x=>x.id===id);
+  if(!n) return;
+  n.spiked = true;
+  n.spikedAt = new Date().toISOString();
+  saveState();
   playThunk();
-  vibrate();
+  vibrateShort();
   shakeRod();
-  if(originEl) spawnFlecks(originEl, t.colorHex);
+  spawnFlecks(n.colorHex);
   flashMessage();
-
-  render();
+  renderWeek();
 }
-
-function unspikeTask(id){
-  const t = tasks.find(x=>x.id===id);
-  if(!t) return;
-  t.spiked = false;
-  t.spikedAt = null;
-  saveTasks();
-  render();
+function unspikeNote(id){
+  const n = state.notes.find(x=>x.id===id);
+  if(!n) return;
+  n.spiked = false;
+  n.spikedAt = null;
+  saveState();
+  renderWeek();
 }
-
-function deleteTask(id){
-  tasks = tasks.filter(x=>x.id!==id);
-  saveTasks();
-  render();
+function deleteNote(id){
+  state.notes = state.notes.filter(x=>x.id!==id);
+  saveState();
+  renderWeek();
 }
-
-function startEdit(id){
-  editingId = id;
-  render();
-}
-
-function saveEdit(id, newText, newCategory){
-  const t = tasks.find(x=>x.id===id);
-  if(t){
-    if(newText && newText.trim()) t.text = newText.trim();
-    t.category = (newCategory && newCategory.trim()) ? newCategory.trim() : 'General';
-    saveTasks();
+function startEditNote(id){ editingNoteId = id; renderWeek(); }
+function cancelEditNote(){ editingNoteId = null; renderWeek(); }
+function saveEditNote(id, newText, newCategory){
+  const n = state.notes.find(x=>x.id===id);
+  if(n && newText.trim()){
+    n.text = newText.trim();
+    n.category = newCategory.trim() || 'General';
+    saveState();
   }
-  editingId = null;
-  render();
+  editingNoteId = null;
+  renderWeek();
 }
 
-function cancelEdit(){
-  editingId = null;
-  render();
-}
+document.getElementById('addNoteBtn').addEventListener('click', addNote);
+document.getElementById('noteText').addEventListener('keydown', e => { if(e.key === 'Enter') addNote(); });
 
-function addRecurring(text, category, frequency, day, dayOfMonth, month, yearlyDayOfMonth){
-  const cat = (category && category.trim()) ? category.trim() : 'General';
-  const freq = frequency || 'weekly';
-  const task = {
-    id: 'r'+Date.now()+Math.random().toString(36).slice(2,7),
-    text: text.trim(),
-    category: cat,
-    frequency: freq,
-    day: freq === 'weekly' ? (day || 'mon') : null,
-    dayOfMonth: freq === 'monthly' ? (parseInt(dayOfMonth,10) || 1) : (freq === 'yearly' ? (parseInt(yearlyDayOfMonth,10) || 1) : null),
-    month: freq === 'yearly' ? (parseInt(month,10) || 1) : null,
-    lastAction: null,
-    lastActionDate: null,
-    createdAt: new Date().toISOString()
-  };
-  task.nextDueDate = computeInitialDueDate(task);
-  recurring.push(task);
-  saveRecurring();
-  renderRecurring();
-  renderTodayStrip();
+function switchView(view){
+  document.getElementById('tabToday').classList.toggle('active', view === 'today');
+  document.getElementById('tabWeek').classList.toggle('active', view === 'week');
+  document.getElementById('todayView').style.display = view === 'today' ? '' : 'none';
+  document.getElementById('weekView').style.display = view === 'week' ? '' : 'none';
+  if(view === 'week') renderWeek();
 }
+document.getElementById('tabToday').addEventListener('click', () => switchView('today'));
+document.getElementById('tabWeek').addEventListener('click', () => switchView('week'));
 
-function deleteRecurring(id){
-  recurring = recurring.filter(x=>x.id!==id);
-  saveRecurring();
-  renderRecurring();
-  renderTodayStrip();
-}
-
-function markRecurringDone(id){
-  const r = recurring.find(x=>x.id===id);
-  if(!r || r.frequency === 'asneeded') return;
-  r.nextDueDate = advanceDueDate(r);
-  r.lastAction = 'done';
-  r.lastActionDate = todayISO();
-  saveRecurring();
-  renderRecurring();
-  renderTodayStrip();
-}
-
-function skipRecurringToNext(id){
-  const r = recurring.find(x=>x.id===id);
-  if(!r || r.frequency === 'asneeded') return;
-  r.nextDueDate = advanceDueDate(r);
-  r.lastAction = 'skipped';
-  r.lastActionDate = todayISO();
-  saveRecurring();
-  renderRecurring();
-  renderTodayStrip();
-}
-
-function startEditRecur(id){
-  editingRecurId = id;
-  renderRecurring();
-}
-
-function saveEditRecur(id, newText, newCategory, newFreq, newDay, newDayOfMonth, newMonth, newYearlyDayOfMonth){
-  const r = recurring.find(x=>x.id===id);
-  if(r){
-    const scheduleBefore = JSON.stringify({f:r.frequency, d:r.day, dom:r.dayOfMonth, m:r.month});
-    if(newText && newText.trim()) r.text = newText.trim();
-    r.category = (newCategory && newCategory.trim()) ? newCategory.trim() : 'General';
-    if(newFreq) r.frequency = newFreq;
-    r.day = r.frequency === 'weekly' ? (newDay || r.day || 'mon') : null;
-    r.dayOfMonth = r.frequency === 'monthly'
-      ? (parseInt(newDayOfMonth,10) || r.dayOfMonth || 1)
-      : (r.frequency === 'yearly' ? (parseInt(newYearlyDayOfMonth,10) || r.dayOfMonth || 1) : null);
-    r.month = r.frequency === 'yearly' ? (parseInt(newMonth,10) || r.month || 1) : null;
-    const scheduleAfter = JSON.stringify({f:r.frequency, d:r.day, dom:r.dayOfMonth, m:r.month});
-    if(scheduleBefore !== scheduleAfter){
-      // the schedule itself changed (not just text/category) — start its due date fresh
-      r.nextDueDate = computeInitialDueDate(r);
-      r.lastAction = null;
-      r.lastActionDate = null;
-    }
-    saveRecurring();
-  }
-  editingRecurId = null;
-  renderRecurring();
-  renderTodayStrip();
-}
-
-function cancelEditRecur(){
-  editingRecurId = null;
-  renderRecurring();
-}
-
-function spawnFromRecurring(id, cardEl){
-  const r = recurring.find(x=>x.id===id);
-  if(!r) return;
-  addTask(r.text, r.category, 0);
-  if(cardEl){
-    cardEl.classList.remove('spawned');
-    void cardEl.offsetWidth;
-    cardEl.classList.add('spawned');
-  }
-}
-
-function render(){
-  const now = new Date();
-  const {week, key} = isoWeekKey(now);
-  const curColor = colorForWeek(week);
-  document.getElementById('weekSwatch').style.background = curColor.hex;
-  document.getElementById('weekLabel').textContent = `Week ${key.split('-W')[1]} \u00b7 ${curColor.name}`;
+function renderWeek(){
+  const {week, key} = isoWeekKey(new Date());
 
   // category filter chips
-  const allCats = Array.from(new Set(tasks.filter(t=>!t.spiked).map(t=>t.category)));
-  const filtersEl = document.getElementById('filters');
+  const allCats = Array.from(new Set(state.notes.filter(n=>!n.spiked).map(n=>n.category)));
+  const filtersEl = document.getElementById('noteFilters');
   if(allCats.length <= 1){
     filtersEl.innerHTML = '';
-    currentFilter = 'All';
+    currentNoteFilter = 'All';
   } else {
     const chipCats = ['All', ...allCats.sort()];
-    if(!chipCats.includes(currentFilter)) currentFilter = 'All';
+    if(!chipCats.includes(currentNoteFilter)) currentNoteFilter = 'All';
     filtersEl.innerHTML = '';
     chipCats.forEach(c=>{
       const chip = document.createElement('div');
-      chip.className = 'filter-chip' + (c===currentFilter ? ' active' : '');
+      chip.className = 'filter-chip' + (c===currentNoteFilter ? ' active' : '');
       chip.textContent = c;
-      chip.addEventListener('click', ()=>{ currentFilter = c; render(); });
+      chip.addEventListener('click', ()=>{ currentNoteFilter = c; renderWeek(); });
       filtersEl.appendChild(chip);
     });
   }
+  document.getElementById('noteCategoryList').innerHTML =
+    getKnownNoteCategories().map(c=>`<option value="${escapeHtml(c)}">`).join('');
 
-  // category datalist for autocomplete
-  const knownCats = getKnownCategories();
-  populateComposerCategorySelect(knownCats);
-
-  // pending
+  // pending notes on the corkboard
   const pendingList = document.getElementById('pendingList');
-  let pending = tasks.filter(t=>!t.spiked).sort((a,b)=>{
+  let pending = state.notes.filter(n=>!n.spiked).sort((a,b)=>{
     const aCurrent = a.weekKey===key ? 0 : 1;
     const bCurrent = b.weekKey===key ? 0 : 1;
-    if(aCurrent !== bCurrent) return aCurrent - bCurrent; // this week's tasks first
-    if(aCurrent===1 && a.weekKey!==b.weekKey) return a.weekKey.localeCompare(b.weekKey); // future weeks in order
-    return new Date(b.createdAt) - new Date(a.createdAt); // newest first within a week
+    if(aCurrent !== bCurrent) return aCurrent - bCurrent;
+    return new Date(b.createdAt) - new Date(a.createdAt);
   });
-  if(currentFilter !== 'All') pending = pending.filter(t=>t.category===currentFilter);
+  if(currentNoteFilter !== 'All') pending = pending.filter(n=>n.category===currentNoteFilter);
   pendingList.innerHTML = '';
   if(pending.length===0){
-    pendingList.innerHTML = '<div class="empty-msg">Nothing here. Add a task above.</div>';
+    pendingList.innerHTML = '<div class="empty-msg">Nothing here. Add a one-off task above.</div>';
   }
-  pending.forEach(t=>{
+  pending.forEach(n=>{
     const el = document.createElement('div');
     el.className='note';
-    const tilt = tiltFor(t.id);
-    el.style.background = t.colorHex;
+    const tilt = tiltFor(n.id);
+    el.style.background = n.colorHex;
     el.style.transform = `rotate(${tilt}deg)`;
 
-    if(t.id === editingId){
-      const catOptions = knownCats.includes(t.category) ? knownCats : [...knownCats, t.category].sort();
-      el.innerHTML = `<div class="pin"></div><select class="edit-cat">${catOptions.map(c=>`<option value="${escapeHtml(c)}"${c===t.category?' selected':''}>${escapeHtml(c)}</option>`).join('')}</select><input type="text" class="edit-input" value="${escapeHtml(t.text)}" maxlength="120">`;
+    if(n.id === editingNoteId){
+      el.innerHTML = `<div class="pin"></div><input type="text" class="edit-cat" value="${escapeHtml(n.category)}" maxlength="24" placeholder="category"><input type="text" class="edit-input" value="${escapeHtml(n.text)}" maxlength="120">`;
       pendingList.appendChild(el);
       const inp = el.querySelector('.edit-input');
       const catInp = el.querySelector('.edit-cat');
       inp.focus();
       inp.select();
       let committed = false;
-      const commit = ()=>{
-        if(committed) return;
-        committed = true;
-        saveEdit(t.id, inp.value, catInp.value);
-      };
+      const commit = ()=>{ if(committed) return; committed = true; saveEditNote(n.id, inp.value, catInp.value); };
       [inp, catInp].forEach(field=>{
         field.addEventListener('keydown', (e)=>{
           e.stopPropagation();
-          if(e.key==='Enter'){ commit(); }
-          if(e.key==='Escape'){ committed = true; cancelEdit(); }
+          if(e.key==='Enter') commit();
+          if(e.key==='Escape'){ committed = true; cancelEditNote(); }
         });
         field.addEventListener('blur', ()=>{
-          setTimeout(()=>{
-            if(document.activeElement !== inp && document.activeElement !== catInp) commit();
-          }, 0);
+          setTimeout(()=>{ if(document.activeElement !== inp && document.activeElement !== catInp) commit(); }, 0);
         });
       });
       return;
     }
 
-    el.innerHTML = `<div class="pin"></div><span class="tag" style="border-color:${categoryColor(t.category)}55; color:${categoryColor(t.category)}">${escapeHtml(t.category)}</span>${t.weekKey!==key ? `<span class="tag future-tag">for Wk ${t.weekKey.split('-W')[1]}</span>` : ''}<br>${escapeHtml(t.text)}<button class="del" title="discard">\u2715</button>`;
-    el.querySelector('.del').addEventListener('click', (e)=>{ e.stopPropagation(); deleteTask(t.id); });
+    el.innerHTML = `<div class="pin"></div><span class="tag">${escapeHtml(n.category)}</span>${n.weekKey!==key ? `<span class="tag">Wk ${n.weekKey.split('-W')[1]}</span>` : ''}<br>${escapeHtml(n.text)}<button class="del" title="discard">&#10005;</button>`;
+    el.querySelector('.del').addEventListener('click', (e)=>{ e.stopPropagation(); deleteNote(n.id); });
     let clickTimer = null;
     el.addEventListener('click', (e)=>{
       if(e.target.classList.contains('del')) return;
       if(clickTimer) return;
-      clickTimer = setTimeout(()=>{
-        clickTimer = null;
-        startEdit(t.id);
-      }, 230);
+      clickTimer = setTimeout(()=>{ clickTimer = null; startEditNote(n.id); }, 230);
     });
     el.addEventListener('dblclick', (e)=>{
       if(e.target.classList.contains('del')) return;
       if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
-      spikeTask(t.id, el);
+      spikeNote(n.id);
     });
     pendingList.appendChild(el);
   });
 
-  // spiked pile — most recent MAX_PILE shown, layered like a real paper spike:
-  // thin colour bands, jittered rotation/offset so old colours peek out at the edges
+  // spiked pile
   const pile = document.getElementById('pile');
-  const spiked = tasks.filter(t=>t.spiked).sort((a,b)=> new Date(a.spikedAt)-new Date(b.spikedAt));
+  const spiked = state.notes.filter(n=>n.spiked).sort((a,b)=> new Date(a.spikedAt)-new Date(b.spikedAt));
   const shown = spiked.slice(-MAX_PILE);
-  const baseWidth = 152;
+  const baseWidth = 140;
   const count = shown.length;
-  // thickness tapers smoothly as the pile grows, rather than staying flat until
-  // a big jump — around 15 notes it should already read as thin paper, not card
-  const layerHeight = count > 0
-    ? Math.max(1, Math.min(8, 18 / Math.sqrt(count + 3)))
-    : 0;
-  const overlap = layerHeight * 0.55; // how much of each layer peeks out beneath the one above
+  const layerHeight = count > 0 ? Math.max(1, Math.min(8, 18 / Math.sqrt(count + 3))) : 0;
+  const overlap = layerHeight * 0.55;
   pile.innerHTML='';
-  shown.forEach((t, idx)=>{
+  shown.forEach((n, idx)=>{
     const el = document.createElement('div');
     el.className='spiked-note';
-    const tilt = tiltFor(t.id) * (idx===shown.length-1 ? 0.4 : 1); // top-most note sits flatter
-    const jitterX = jitterFor(t.id) * 0.5;
+    const tilt = tiltFor(n.id) * (idx===shown.length-1 ? 0.4 : 1);
+    const jitterX = jitterFor(n.id) * 0.5;
     const widthJitter = 1 - Math.abs(jitterX)/60;
     el.style.height = layerHeight + 'px';
     el.style.width = Math.round(baseWidth * widthJitter) + 'px';
     el.style.marginTop = idx===0 ? '0px' : (-(layerHeight - overlap)) + 'px';
     el.style.transform = `translateX(${jitterX}px) rotate(${tilt}deg)`;
-    el.style.background = t.colorHex;
+    el.style.background = n.colorHex;
     el.style.zIndex = idx;
-    el.title = `${t.text} — ${t.category}, ${t.weekKey} (${t.colorName}). Double-click to un-spike.`;
-    el.addEventListener('dblclick', ()=> unspikeTask(t.id));
+    el.title = `${n.text} — ${n.category}, ${n.weekKey} (${n.colorName}). Double-click to un-spike.`;
+    el.addEventListener('dblclick', ()=> unspikeNote(n.id));
     pile.appendChild(el);
   });
-
   const overflow = spiked.length - shown.length;
   document.getElementById('countTag').textContent = spiked.length===0
     ? 'Nothing spiked yet'
     : `${spiked.length} spiked total${overflow>0 ? ` (older ${overflow} buried below)` : ''}`;
 
-  // streak: spiked today
-  const spikedToday = spiked.filter(t=> new Date(t.spikedAt).toDateString() === todayStr()).length;
-  document.getElementById('streakLabel').textContent = spikedToday>0 ? `spiked today: ${spikedToday}` : '';
+  const spikedToday = spiked.filter(n => n.spikedAt && new Date(n.spikedAt).toDateString() === new Date().toDateString()).length;
+  document.getElementById('spikedTodayTag').textContent = spikedToday > 0 ? `spiked today: ${spikedToday}` : '';
 
-  // legend: last 6 distinct weeks present in data, most recent first
+  // legend: last 6 distinct weeks present in notes, most recent first
   const weeksSeen = {};
-  tasks.forEach(t=>{ weeksSeen[t.weekKey] = t; });
+  state.notes.forEach(n=>{ weeksSeen[n.weekKey] = n; });
   const weekKeys = Object.keys(weeksSeen).sort().reverse().slice(0,6);
-  const legend = document.getElementById('legend');
+  const legend = document.getElementById('weekLegend');
   legend.innerHTML='';
   weekKeys.forEach(k=>{
     const sample = weeksSeen[k];
@@ -1962,273 +1446,157 @@ function render(){
   });
 }
 
-function formatFullDate(date){
-  const WEEKDAY_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const weekday = WEEKDAY_FULL[date.getDay()];
-  const day = date.getDate();
-  const month = MONTH_NAMES[date.getMonth()];
-  return `<span class="today-weekday">${weekday} ${day}${suffixFor(day)}</span> ${month}`;
+// ---- Render ----
+function prettyToday(){
+  return new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
 }
 
-function renderRecurring(){
-  const knownCats = getKnownCategories();
-  populateSelect(document.getElementById('recurCategoryInput'), knownCats, false);
+function cardMetaLine(card){
+  const parts = [];
+  if(card.zone) parts.push(card.zone);
+  if(card.category === 'weekly') parts.push('every ' + WEEKDAY_LABELS[card.weekday || 'mon']);
+  if(card.category === 'monthly') parts.push('day ' + (card.dayOfMonth||1) + ' of month');
+  if(card.category === 'seasonal'){
+    const interval = card.intervalMonths || 12;
+    parts.push(MONTH_ABBR[(card.month||1)-1] + ' ' + (card.dayOfMonth||1) + (interval !== 12 ? ` (${INTERVAL_LABEL_SHORT[interval]})` : ''));
+  }
+  parts.push((card.points||0) + ' pts');
+  return parts.join(' · ');
+}
 
-  const todayLabelEl = document.getElementById('recurTodayLabel');
-  if(todayLabelEl) todayLabelEl.innerHTML = 'Today is ' + formatFullDate(new Date());
+function zoneOf(card){ return card.zone || 'No zone'; }
 
-  // toggle buttons reflect current mode
-  document.querySelectorAll('.toggle-btn').forEach(btn=>{
-    btn.classList.toggle('active', btn.dataset.mode === recurViewMode);
+function renderZoneFilters(){
+  const zonesEl = document.getElementById('zoneFilters');
+  const allZones = Array.from(new Set(state.cards.map(zoneOf)));
+  if(allZones.length <= 1){
+    zonesEl.innerHTML = '';
+    currentZoneFilter = 'All';
+    return;
+  }
+  const chipZones = ['All', ...allZones.sort()];
+  if(!chipZones.includes(currentZoneFilter)) currentZoneFilter = 'All';
+  zonesEl.innerHTML = '';
+  chipZones.forEach(z=>{
+    const chip = document.createElement('div');
+    chip.className = 'filter-chip' + (z===currentZoneFilter ? ' active' : '');
+    chip.textContent = z;
+    chip.addEventListener('click', ()=>{ currentZoneFilter = z; render(); });
+    zonesEl.appendChild(chip);
   });
+}
 
-  if(recurViewMode === 'day' && !currentDayOfMonthFilter){
-    currentDayOfMonthFilter = todayDayOfMonth();
-  }
-  if(recurViewMode === 'month' && !currentMonthFilter){
-    currentMonthFilter = todayMonth();
-  }
+function render(){
+  document.getElementById('tally').textContent = state.points + ' pts';
+  document.getElementById('todayLabel').textContent = "Today's cards — " + prettyToday();
 
-  const tabsEl = document.getElementById('indexTabs');
-  tabsEl.innerHTML = '';
-
-  if(recurViewMode === 'freq'){
-    const tabValues = ['All', ...FREQ_ORDER];
-    tabValues.forEach(v=>{
-      const label = v === 'All' ? 'All' : FREQ_LABELS[v];
-      const btn = document.createElement('button');
-      btn.className = 'index-tab' + (currentRecurFilter === v ? ' active' : '');
-      btn.textContent = label;
-      btn.addEventListener('click', ()=>{ currentRecurFilter = v; renderRecurring(); });
-      tabsEl.appendChild(btn);
-    });
-  } else if(recurViewMode === 'day'){
-    tabsEl.classList.add('index-tabs-dense');
-    const today = todayDayOfMonth();
-    // reordered so today's slot is always first, like flipping to the front of a real tickler box —
-    // then the rest of the month in order, wrapping back around to the 1st
-    const order = [];
-    for(let i=0;i<31;i++) order.push(((today - 1 + i) % 31) + 1);
-
-    // days where a new week begins this month, per the chosen week-start preference —
-    // used to drop a small orange divider between the day tabs, e.g. between 16 and 17
-    const now = new Date();
-    const weekStartDays = new Set();
-    const targetDow = weekStartPref === 'sun' ? 0 : 1;
-    const daysThisMonth = daysInMonth(now.getFullYear(), now.getMonth());
-    for(let d=2; d<=daysThisMonth; d++){
-      if(new Date(now.getFullYear(), now.getMonth(), d).getDay() === targetDow) weekStartDays.add(d);
-    }
-
-    order.forEach((d, idx)=>{
-      const btn = document.createElement('button');
-      const isToday = d === today;
-      btn.className = 'index-tab index-tab-num' + (currentDayOfMonthFilter === d ? ' active' : '') + (isToday ? ' today' : '');
-      btn.textContent = isToday ? 'Today' : d;
-      btn.title = isToday ? 'Today' : '';
-      btn.addEventListener('click', ()=>{ currentDayOfMonthFilter = d; renderRecurring(); });
-
-      // insert a divider immediately before this tab if it's a real week-start day
-      // and it's genuinely consecutive with the previous tab (not the numeric wrap seam)
-      if(idx > 0 && order[idx-1] === d - 1 && weekStartDays.has(d)){
-        const marker = document.createElement('div');
-        marker.className = 'week-start-marker';
-        marker.title = 'New week starts here';
-        tabsEl.appendChild(marker);
-      }
-      tabsEl.appendChild(btn);
-    });
-  } else {
-    tabsEl.classList.remove('index-tabs-dense');
-    const today = todayMonth();
-    for(let m=1; m<=12; m++){
-      const btn = document.createElement('button');
-      btn.className = 'index-tab' + (currentMonthFilter === m ? ' active' : '') + (m === today ? ' today' : '');
-      btn.textContent = MONTH_ABBR[m-1];
-      btn.title = m === today ? 'This month' : '';
-      btn.addEventListener('click', ()=>{ currentMonthFilter = m; renderRecurring(); });
-      tabsEl.appendChild(btn);
-    }
-  }
-  if(recurViewMode !== 'day') tabsEl.classList.remove('index-tabs-dense');
+  renderZoneFilters();
+  const visibleCards = currentZoneFilter === 'All' ? state.cards : state.cards.filter(c => zoneOf(c) === currentZoneFilter);
 
   const box = document.getElementById('indexBox');
-  box.innerHTML = '';
+  const dueCards = visibleCards.filter(c => statusOf(c) === 'due-today' || statusOf(c) === 'overdue');
+  const doneTodayCards = visibleCards.filter(c => c.lastDone === todayISO());
 
-  if(recurring.length === 0){
-    box.innerHTML = '<div class="empty-msg">No recurring tasks yet \u2014 add ones you do every week, month, or year so you can drop them onto the board in one tap.</div>';
-    return;
-  }
-
-  let visible;
-  let filterLabel;
-  if(recurViewMode === 'freq'){
-    visible = currentRecurFilter === 'All' ? recurring : recurring.filter(r=>r.frequency===currentRecurFilter);
-    filterLabel = currentRecurFilter === 'All' ? 'All' : FREQ_LABELS[currentRecurFilter];
-  } else if(recurViewMode === 'day'){
-    // Day-of-month view, driven by each card's real nextDueDate rather than its raw
-    // frequency fields — so a weekly or yearly card due today shows up under today's
-    // slot too, exactly like a physical tickler file where the front folder holds
-    // everything needing attention today regardless of what kind of reminder it is.
-    // Only cards whose next occurrence falls within THIS calendar month are shown,
-    // so a yearly card ten months away doesn't appear under an unrelated date tab.
-    const now = new Date();
-    visible = recurring.filter(r=>{
-      if(r.frequency === 'asneeded' || !r.nextDueDate) return false;
-      const due = dateFromISO(r.nextDueDate);
-      return due.getFullYear() === now.getFullYear() && due.getMonth() === now.getMonth() && due.getDate() === currentDayOfMonthFilter;
-    });
-    filterLabel = currentDayOfMonthFilter === todayDayOfMonth() ? 'today' : ('the ' + currentDayOfMonthFilter + suffixFor(currentDayOfMonthFilter));
+  if(!state.cards.length){
+    box.innerHTML = `<div class="empty-box-msg">The box is empty. Add your first cards below — pick Daily, Weekly, Monthly, Seasonal, or Personal — and they'll turn up here on the right day.</div>`;
+  } else if(!dueCards.length && !doneTodayCards.length){
+    box.innerHTML = `<div class="empty-box-msg">Nothing pulled for today${currentZoneFilter !== 'All' ? ' in ' + escapeHtml(currentZoneFilter) : ''}. Everything's filed.</div>`;
   } else {
-    // month view: yearly tasks show in their assigned month.
-    visible = recurring.filter(r=> r.frequency === 'yearly' && r.month === currentMonthFilter);
-    filterLabel = MONTH_NAMES[currentMonthFilter-1];
+    let html = '';
+    dueCards.forEach(card => {
+      const status = statusOf(card);
+      html += renderCard(card, status, false);
+    });
+    doneTodayCards.forEach(card => {
+      html += renderCard(card, 'done', true);
+    });
+    box.innerHTML = html;
   }
 
-  if(visible.length === 0){
-    box.innerHTML = `<div class="empty-msg">Nothing filed under "${escapeHtml(filterLabel)}" yet.</div>`;
+  renderAllList(visibleCards);
+}
+
+function renderCard(card, status, done){
+  const statusClass = done ? 'card-done' : (status === 'due-today' ? 'status-due-today' : status === 'overdue' ? 'status-overdue' : '');
+  let flag = '';
+  if(done) flag = `<div class="done-flag">✓</div>`;
+  else if(status === 'overdue') flag = `<div class="overdue-flag">overdue</div>`;
+  return `<div class="index-card cat-${card.category} ${statusClass}" onclick="toggleDone('${card.id}')">
+    ${flag}
+    <span class="card-cat-tag">${CAT_LABEL[card.category]}</span>
+    <div class="card-name">${escapeHtml(card.name)}</div>
+    <div class="card-meta">${escapeHtml(cardMetaLine(card))}</div>
+  </div>`;
+}
+
+function renderAllList(visibleCards){
+  const allList = document.getElementById('allList');
+  const countLabel = currentZoneFilter === 'All'
+    ? '(' + state.cards.length + ')'
+    : `(${visibleCards.length} of ${state.cards.length})`;
+  document.getElementById('deckCount').textContent = countLabel;
+  if(!state.cards.length){
+    allList.innerHTML = `<div class="empty-list">No cards yet.</div>`;
+    return;
+  }
+  if(!visibleCards.length){
+    allList.innerHTML = `<div class="empty-list">No cards in ${escapeHtml(currentZoneFilter)}.</div>`;
     return;
   }
 
-  const freqOrderMap = Object.fromEntries(FREQ_ORDER.map((f,i)=>[f,i]));
-  const sorted = [...visible].sort((a,b)=> (freqOrderMap[a.frequency]??9) - (freqOrderMap[b.frequency]??9) || a.text.localeCompare(b.text));
-
-  sorted.forEach(r=>{
-    const el = document.createElement('div');
-    el.className = 'index-card';
-
-    if(r.id === editingRecurId){
-      const catOptions = knownCats.includes(r.category) ? knownCats : [...knownCats, r.category].sort();
-      const weekdayPickerHtml = `<select class="edit-day"${r.frequency!=='weekly' ? ' style="display:none;"' : ''}>${WEEKDAY_ORDER.map(d=>`<option value="${d}"${d===r.day?' selected':''}>${WEEKDAY_LABELS[d]}</option>`).join('')}</select>`;
-      const domOptions = Array.from({length:31}, (_,i)=>i+1).map(d=>`<option value="${d}"${d===r.dayOfMonth?' selected':''}>${d}${suffixFor(d)}</option>`).join('');
-      const dayOfMonthPickerHtml = `<select class="edit-dom"${r.frequency!=='monthly' ? ' style="display:none;"' : ''}>${domOptions}</select>`;
-      const monthOptions = MONTH_NAMES.map((name,i)=>`<option value="${i+1}"${(i+1)===r.month?' selected':''}>${name}</option>`).join('');
-      const monthPickerHtml = `<select class="edit-month"${r.frequency!=='yearly' ? ' style="display:none;"' : ''}>${monthOptions}</select>`;
-      const yearlyDayOptions = Array.from({length:31}, (_,i)=>i+1).map(d=>`<option value="${d}"${r.frequency==='yearly' && d===r.dayOfMonth?' selected':''}>${d}${suffixFor(d)}</option>`).join('');
-      const yearlyDayPickerHtml = `<select class="edit-yearly-day"${r.frequency!=='yearly' ? ' style="display:none;"' : ''}>${yearlyDayOptions}</select>`;
-      el.innerHTML = `<select class="edit-cat">${catOptions.map(c=>`<option value="${escapeHtml(c)}"${c===r.category?' selected':''}>${escapeHtml(c)}</option>`).join('')}</select><select class="edit-freq">${Object.keys(FREQ_LABELS).map(f=>`<option value="${f}"${f===r.frequency?' selected':''}>${FREQ_LABELS[f]}</option>`).join('')}</select>${weekdayPickerHtml}${dayOfMonthPickerHtml}${monthPickerHtml}${yearlyDayPickerHtml}<input type="text" class="edit-input" value="${escapeHtml(r.text)}" maxlength="120">`;
-      box.appendChild(el);
-      const inp = el.querySelector('.edit-input');
-      const catInp = el.querySelector('.edit-cat');
-      const freqInp = el.querySelector('.edit-freq');
-      const dayInp = el.querySelector('.edit-day');
-      const domInp = el.querySelector('.edit-dom');
-      const monthInp = el.querySelector('.edit-month');
-      const yearlyDayInp = el.querySelector('.edit-yearly-day');
-      inp.focus();
-      inp.select();
-      freqInp.addEventListener('change', ()=>{
-        dayInp.style.display = freqInp.value === 'weekly' ? '' : 'none';
-        domInp.style.display = freqInp.value === 'monthly' ? '' : 'none';
-        monthInp.style.display = freqInp.value === 'yearly' ? '' : 'none';
-        yearlyDayInp.style.display = freqInp.value === 'yearly' ? '' : 'none';
-      });
-      const allFields = [inp, catInp, freqInp, dayInp, domInp, monthInp, yearlyDayInp];
-      let committed = false;
-      const commit = ()=>{
-        if(committed) return;
-        committed = true;
-        saveEditRecur(r.id, inp.value, catInp.value, freqInp.value, dayInp.value, domInp.value, monthInp.value, yearlyDayInp.value);
-      };
-      allFields.forEach(field=>{
-        field.addEventListener('keydown', (e)=>{
-          e.stopPropagation();
-          if(e.key==='Enter'){ commit(); }
-          if(e.key==='Escape'){ committed = true; cancelEditRecur(); }
-        });
-        field.addEventListener('blur', ()=>{
-          setTimeout(()=>{
-            if(!allFields.includes(document.activeElement)) commit();
-          }, 0);
-        });
-      });
-      return;
-    }
-
-    let scheduleBadge = '';
-    if(r.frequency === 'weekly' && r.day) scheduleBadge = `<span class="freq-badge">${WEEKDAY_LABELS[r.day]}</span>`;
-    else if(r.frequency === 'monthly' && r.dayOfMonth) scheduleBadge = `<span class="freq-badge">${r.dayOfMonth}${suffixFor(r.dayOfMonth)}</span>`;
-    else if(r.frequency === 'yearly' && r.month) scheduleBadge = `<span class="freq-badge">${MONTH_ABBR[r.month-1]}${r.dayOfMonth ? ' '+r.dayOfMonth+suffixFor(r.dayOfMonth) : ''}</span>`;
-
-    const status = recurStatus(r); // 'none' | 'overdue' | 'due-today' | 'upcoming'
-    let flagHtml = '';
-    let actionsHtml = '';
-
-    if(status === 'due-today'){
-      el.classList.add('due-today');
-      flagHtml = '<span class="today-flag" title="Due today">Today</span>';
-      actionsHtml = '<button class="done-btn" title="Mark done">\u2713 Done</button>';
-    } else if(status === 'overdue'){
-      el.classList.add('overdue');
-      flagHtml = '<span class="today-flag missed-flag" title="Missed \u2014 was due '+escapeHtml(r.nextDueDate)+'">Missed</span>';
-      actionsHtml = '<button class="done-btn" title="Mark done">\u2713 Done</button><button class="skip-btn" title="All good, move to next due">Move on</button>';
-    } else if(status === 'upcoming' && r.lastAction === 'done'){
-      el.classList.add('done-dormant');
-      flagHtml = '<span class="done-check" title="Done \u2014 next due '+escapeHtml(r.nextDueDate)+'">\u2713</span>';
-    } else if(status === 'upcoming' && r.lastAction === 'skipped'){
-      flagHtml = '<span class="skipped-note" title="Skipped last time \u2014 next due '+escapeHtml(r.nextDueDate)+'">skipped last time</span>';
-    }
-
-    el.innerHTML = `${flagHtml}<span class="tag" style="border-color:${categoryColor(r.category)}55; color:${categoryColor(r.category)}">${escapeHtml(r.category)}</span><span class="freq-badge">${FREQ_LABELS[r.frequency] || r.frequency}</span>${scheduleBadge}<br>${escapeHtml(r.text)}<button class="del" title="delete">\u2715</button><button class="spawn-btn" title="add to this week's board">+</button>${actionsHtml}<div class="spawned-flash"></div>`;
-    el.querySelector('.del').addEventListener('click', (e)=>{ e.stopPropagation(); deleteRecurring(r.id); });
-    el.querySelector('.spawn-btn').addEventListener('click', (e)=>{ e.stopPropagation(); spawnFromRecurring(r.id, el); });
-    const doneBtn = el.querySelector('.done-btn');
-    if(doneBtn) doneBtn.addEventListener('click', (e)=>{ e.stopPropagation(); markRecurringDone(r.id); });
-    const skipBtn = el.querySelector('.skip-btn');
-    if(skipBtn) skipBtn.addEventListener('click', (e)=>{ e.stopPropagation(); skipRecurringToNext(r.id); });
-    el.addEventListener('click', (e)=>{
-      if(['del','spawn-btn','done-btn','skip-btn'].some(c=>e.target.classList.contains(c))) return;
-      startEditRecur(r.id);
-    });
-    box.appendChild(el);
+  // Group like a real card box's tab dividers: one section per zone,
+  // "No zone" always filed at the back rather than wherever it'd
+  // alphabetize to.
+  const zones = Array.from(new Set(visibleCards.map(zoneOf))).sort((a,b)=>{
+    if(a === 'No zone') return 1;
+    if(b === 'No zone') return -1;
+    return a.localeCompare(b);
   });
+
+  allList.innerHTML = zones.map(zone => {
+    const cardsInZone = visibleCards.filter(c => zoneOf(c) === zone)
+      .slice().sort((a,b) => CATS.indexOf(a.category) - CATS.indexOf(b.category));
+    const rowsHtml = cardsInZone.map(c => {
+      if(editingId === c.id) return renderEditRow(c);
+      return `<div class="all-row cat-${c.category}">
+        <div class="all-row-left">
+          <div>${escapeHtml(c.name)}</div>
+          <div class="all-row-sub">${cardMetaLine(c)} · next ${c.nextDue}</div>
+        </div>
+        <div class="all-row-actions">
+          <button class="icon-btn" onclick="startEdit('${c.id}')" title="Edit">✎</button>
+          <button class="icon-btn del-btn" onclick="deleteCard('${c.id}')" title="Remove">×</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="zone-group">
+      <div class="zone-divider">${escapeHtml(zone)}<span class="zone-count">${cardsInZone.length}</span></div>
+      <div class="zone-folder">${rowsHtml}</div>
+    </div>`;
+  }).join('');
 }
 
-function suffixFor(n){
-  if(n % 10 === 1 && n !== 11) return 'st';
-  if(n % 10 === 2 && n !== 12) return 'nd';
-  if(n % 10 === 3 && n !== 13) return 'rd';
-  return 'th';
-}
-
-function renderTodayStrip(){
-  const strip = document.getElementById('todayStrip');
-  const list = document.getElementById('todayStripList');
-  if(!strip || !list) return;
-
-  const due = recurring.filter(r=> recurStatus(r) === 'due-today');
-  const overdue = recurring.filter(r=> recurStatus(r) === 'overdue');
-  const items = [...overdue, ...due]; // overdue first — most urgent
-
-  if(items.length === 0){
-    strip.style.display = 'none';
-    list.innerHTML = '';
-    return;
+function renderEditRow(c){
+  let extra = '';
+  if(c.category === 'weekly'){
+    extra = `<select id="e-weekday">${Object.keys(WEEKDAY_LABELS).map(k=>`<option value="${k}" ${k===c.weekday?'selected':''}>${WEEKDAY_LABELS[k]}</option>`).join('')}</select>`;
+  } else if(c.category === 'monthly'){
+    extra = `<select id="e-dom">${Array.from({length:31},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===c.dayOfMonth?'selected':''}>${d}</option>`).join('')}</select>`;
+  } else if(c.category === 'seasonal'){
+    extra = `<select id="e-month">${MONTH_NAMES.map((n,i)=>`<option value="${i+1}" ${(i+1)===c.month?'selected':''}>${n}</option>`).join('')}</select>
+    <select id="e-seasonday">${Array.from({length:31},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===c.dayOfMonth?'selected':''}>${d}</option>`).join('')}</select>
+    <select id="e-interval">${INTERVAL_OPTIONS.map(o=>`<option value="${o.value}" ${o.value===(c.intervalMonths||12)?'selected':''}>${o.label}</option>`).join('')}</select>`;
   }
-  strip.style.display = 'block';
-  list.innerHTML = '';
-  items.forEach(r=>{
-    const isOverdue = recurStatus(r) === 'overdue';
-    const el = document.createElement('div');
-    el.className = 'strip-item' + (isOverdue ? ' overdue-item' : '');
-    el.innerHTML = `<button class="strip-check" title="Mark done">\u2713</button><span>${escapeHtml(r.text)}</span>`;
-    el.querySelector('.strip-check').addEventListener('click', ()=>{
-      markRecurringDone(r.id);
-    });
-    list.appendChild(el);
-  });
-}
-
-function populateSelect(sel, options, addNewOption){
-  if(!sel) return;
-  const prevValue = sel.value;
-  sel.innerHTML = options.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
-    + (addNewOption ? `<option value="${NEW_CATEGORY_VALUE}">+ Add new category&hellip;</option>` : '');
-  if(options.includes(prevValue)){
-    sel.value = prevValue;
-  } else {
-    sel.value = options[0] || 'General';
-  }
+  return `<div class="edit-row">
+    <input id="e-name" value="${escapeHtml(c.name)}" placeholder="Card text">
+    <input id="e-zone" value="${escapeHtml(c.zone||'')}" placeholder="Zone">
+    <select id="e-cat" data-original-cat="${c.category}" onchange="document.getElementById('e-cat-warning').style.display = (this.value === this.dataset.originalCat) ? 'none' : 'block';">${CATS.map(cat=>`<option value="${cat}" ${cat===c.category?'selected':''}>${CAT_LABEL[cat]}</option>`).join('')}</select>
+    ${extra}
+    <input id="e-points" type="number" value="${c.points}" style="width:56px">
+    <button onclick="saveEdit('${c.id}')">Save</button>
+    <button onclick="cancelEdit()" style="background:transparent;color:var(--ink);border-color:rgba(59,52,42,0.3)">Cancel</button>
+    <small id="e-cat-warning" style="display:none;flex-basis:100%;color:var(--overdue-ring);font-family:'IBM Plex Mono',monospace;font-size:0.68rem;">Changing category resets this card's next due date.</small>
+  </div>`;
 }
 
 function escapeHtml(s){
@@ -2237,204 +1605,66 @@ function escapeHtml(s){
   return d.innerHTML;
 }
 
-function submitNewTask(){
-  const input = document.getElementById('taskInput');
-  const catSelect = document.getElementById('categoryInput');
-  const newCatInput = document.getElementById('newCategoryInput');
-  const weekInput = document.getElementById('weekSelect');
-  if(input.value.trim()){
-    let category;
-    if(newCatInput.style.display !== 'none'){
-      category = newCatInput.value.trim() || 'General';
-      pendingNewCategory = category;
-    } else {
-      category = catSelect.value;
-    }
-    addTask(input.value, category, parseInt(weekInput.value, 10) || 0);
-    input.value='';
-    revertToCategSelect();
-    weekInput.value = '0';
-    input.focus();
-  }
-}
-document.getElementById('addBtn').addEventListener('click', submitNewTask);
-document.getElementById('taskInput').addEventListener('keydown', (e)=>{
-  if(e.key==='Enter') submitNewTask();
-});
-
-function showNewCategoryField(){
-  const catSelect = document.getElementById('categoryInput');
-  const newCatInput = document.getElementById('newCategoryInput');
-  catSelect.style.display = 'none';
-  newCatInput.style.display = 'inline-block';
-  newCatInput.value = '';
-  newCatInput.focus();
-}
-function revertToCategSelect(){
-  const catSelect = document.getElementById('categoryInput');
-  const newCatInput = document.getElementById('newCategoryInput');
-  newCatInput.style.display = 'none';
-  newCatInput.value = '';
-  catSelect.style.display = 'inline-block';
-}
-
-document.getElementById('categoryInput').addEventListener('change', (e)=>{
-  if(e.target.value === NEW_CATEGORY_VALUE){
-    showNewCategoryField();
-  }
-});
-document.getElementById('newCategoryInput').addEventListener('keydown', (e)=>{
-  if(e.key==='Enter'){ submitNewTask(); }
-  if(e.key==='Escape'){ revertToCategSelect(); }
-});
-document.getElementById('newCategoryInput').addEventListener('blur', ()=>{
-  // give a click on Add a moment to register before snapping back
-  setTimeout(()=>{
-    const newCatInput = document.getElementById('newCategoryInput');
-    if(newCatInput.style.display !== 'none' && !newCatInput.value.trim()){
-      revertToCategSelect();
-    }
-  }, 150);
-});
-
-function populateWeekSelect(){
-  const sel = document.getElementById('weekSelect');
-  const now = new Date();
-  const labels = ['This week', 'Next week', 'In 2 weeks', 'In 3 weeks'];
-  sel.innerHTML = labels.map((label, i)=>{
-    const d = new Date(now.getTime() + i*7*86400000);
-    const {key} = isoWeekKey(d);
-    const color = colorForWeek(isoWeekKey(d).week);
-    return `<option value="${i}">${label} (${color.name})</option>`;
-  }).join('');
-}
-populateWeekSelect();
-
-document.getElementById('retrySaveBtn').addEventListener('click', ()=> saveTasks());
-
-document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
-  const btn = document.getElementById('manualSaveBtn');
-  const ok = saveTasks() && saveRecurring();
-  const original = btn.textContent;
-  btn.textContent = ok ? 'Saved \u2713' : 'Save failed';
-  btn.classList.toggle('saved', ok);
-  clearTimeout(btn._resetTimer);
-  btn._resetTimer = setTimeout(()=>{
-    btn.textContent = original;
-    btn.classList.remove('saved');
-  }, 1400);
-});
-
-function submitNewRecurring(){
-  const input = document.getElementById('recurTaskInput');
-  const catSelect = document.getElementById('recurCategoryInput');
-  const freqSelect = document.getElementById('recurFrequencyInput');
-  const daySelect = document.getElementById('recurDayInput');
-  const domSelect = document.getElementById('recurDayOfMonthInput');
-  const monthSelect = document.getElementById('recurMonthInput');
-  const yearlyDaySelect = document.getElementById('recurYearlyDayInput');
-  if(input.value.trim()){
-    addRecurring(input.value, catSelect.value, freqSelect.value, daySelect.value, domSelect.value, monthSelect.value, yearlyDaySelect.value);
-    input.value = '';
-    input.focus();
-  }
-}
-document.getElementById('addRecurBtn').addEventListener('click', submitNewRecurring);
-document.getElementById('recurTaskInput').addEventListener('keydown', (e)=>{
-  if(e.key==='Enter') submitNewRecurring();
-});
-
-function populateComposerDateSelects(){
-  const domSelect = document.getElementById('recurDayOfMonthInput');
-  domSelect.innerHTML = Array.from({length:31}, (_,i)=>i+1).map(d=>`<option value="${d}">${d}${suffixFor(d)}</option>`).join('');
-  const monthSelect = document.getElementById('recurMonthInput');
-  monthSelect.innerHTML = MONTH_NAMES.map((name,i)=>`<option value="${i+1}">${name}</option>`).join('');
-  const yearlyDaySelect = document.getElementById('recurYearlyDayInput');
-  yearlyDaySelect.innerHTML = Array.from({length:31}, (_,i)=>i+1).map(d=>`<option value="${d}">${d}${suffixFor(d)}</option>`).join('');
-}
-populateComposerDateSelects();
-
-function updateRecurDayVisibility(){
-  const freqSelect = document.getElementById('recurFrequencyInput');
-  const daySelect = document.getElementById('recurDayInput');
-  const domSelect = document.getElementById('recurDayOfMonthInput');
-  const monthSelect = document.getElementById('recurMonthInput');
-  const yearlyDaySelect = document.getElementById('recurYearlyDayInput');
-  daySelect.style.display = freqSelect.value === 'weekly' ? '' : 'none';
-  domSelect.style.display = freqSelect.value === 'monthly' ? '' : 'none';
-  monthSelect.style.display = freqSelect.value === 'yearly' ? '' : 'none';
-  yearlyDaySelect.style.display = freqSelect.value === 'yearly' ? '' : 'none';
-}
-document.getElementById('recurFrequencyInput').addEventListener('change', updateRecurDayVisibility);
-updateRecurDayVisibility();
-
-document.getElementById('recurViewToggle').addEventListener('click', (e)=>{
-  const btn = e.target.closest('.toggle-btn');
-  if(!btn) return;
-  recurViewMode = btn.dataset.mode;
-  renderRecurring();
-});
-
-function switchView(view){
-  const boardView = document.getElementById('boardView');
-  const recurringView = document.getElementById('recurringView');
-  const tabBoard = document.getElementById('tabBoard');
-  const tabRecurring = document.getElementById('tabRecurring');
-  if(view === 'recurring'){
-    boardView.style.display = 'none';
-    recurringView.style.display = 'block';
-    tabBoard.classList.remove('active');
-    tabRecurring.classList.add('active');
-    renderRecurring();
-  } else {
-    boardView.style.display = 'grid';
-    recurringView.style.display = 'none';
-    tabRecurring.classList.remove('active');
-    tabBoard.classList.add('active');
-  }
-}
-document.getElementById('tabBoard').addEventListener('click', ()=> switchView('board'));
-document.getElementById('tabRecurring').addEventListener('click', ()=> switchView('recurring'));
-
-// Keep the current-week badge/board, and the recurring box's "today" markers,
-// honest even if the tab is left open across a day or week boundary — without
-// this, nothing would trigger a re-render just from time passing.
-let lastKnownWeekKey = isoWeekKey(new Date()).key;
+// Keep "today" honest if the tab is left open across midnight
 let lastKnownDateStr = new Date().toDateString();
-setInterval(()=>{
+setInterval(() => {
   const now = new Date();
-  const nowWeekKey = isoWeekKey(now).key;
-  const nowDateStr = now.toDateString();
-  if(nowWeekKey !== lastKnownWeekKey){
-    lastKnownWeekKey = nowWeekKey;
+  if(now.toDateString() !== lastKnownDateStr){
+    lastKnownDateStr = now.toDateString();
     render();
+    if(document.getElementById('weekView').style.display !== 'none') renderWeek();
   }
-  if(nowDateStr !== lastKnownDateStr){
-    lastKnownDateStr = nowDateStr;
-    // re-render the recurring box and today's routine strip too, so due/overdue
-    // status and the "today" dot move to the right day — this doesn't reset
-    // whatever tab or filter you'd manually selected
-    renderRecurring();
-    renderTodayStrip();
-    renderMiniCalendar();
-  }
-}, 5 * 60 * 1000); // check every 5 minutes — frequent enough to catch a rollover same morning, cheap enough not to matter
+}, 5 * 60 * 1000);
 
-document.getElementById('calPrevBtn').addEventListener('click', ()=> shiftCalMonth(-1));
-document.getElementById('calNextBtn').addEventListener('click', ()=> shiftCalMonth(1));
-document.getElementById('calWeekstartToggle').addEventListener('click', (e)=>{
-  const btn = e.target.closest('.cal-ws-btn');
-  if(!btn) return;
-  weekStartPref = btn.dataset.start;
-  saveWeekStartPref();
-  renderMiniCalendar();
-});
+const STARTER_CARDS = [
+  // Kitchen
+  { name:"Wipe counters & stovetop", zone:"Kitchen", category:"daily", points:5 },
+  { name:"Wash/load dishes", zone:"Kitchen", category:"daily", points:5 },
+  { name:"Wipe down sink", zone:"Kitchen", category:"daily", points:3 },
+  { name:"Clean out fridge leftovers", zone:"Kitchen", category:"weekly", points:8, weekday:"sun" },
+  { name:"Take out kitchen bin & recycling", zone:"Kitchen", category:"weekly", points:5, weekday:"mon" },
+  { name:"Wipe cabinet fronts & handles", zone:"Kitchen", category:"weekly", points:5, weekday:"sat" },
+  { name:"Deep clean microwave", zone:"Kitchen", category:"monthly", points:10, dayOfMonth:1 },
+  { name:"Wipe inside of fridge", zone:"Kitchen", category:"monthly", points:10, dayOfMonth:15 },
+  { name:"Deep clean oven interior", zone:"Kitchen", category:"seasonal", points:15, month:1, dayOfMonth:15 },
+  { name:"Sort & wipe pantry shelves", zone:"Kitchen", category:"seasonal", points:12, month:7, dayOfMonth:15 },
+  // Living room
+  { name:"Quick tidy \u2014 cushions & surfaces", zone:"Living room", category:"daily", points:3 },
+  { name:"Clear coffee table clutter", zone:"Living room", category:"daily", points:3 },
+  { name:"Vacuum floors", zone:"Living room", category:"weekly", points:8, weekday:"sat" },
+  { name:"Dust surfaces & TV", zone:"Living room", category:"weekly", points:5, weekday:"wed" },
+  { name:"Vacuum under couch cushions", zone:"Living room", category:"monthly", points:10, dayOfMonth:1 },
+  { name:"Wipe skirting boards", zone:"Living room", category:"monthly", points:8, dayOfMonth:10 },
+  { name:"Wash cushion covers & throws", zone:"Living room", category:"seasonal", points:12, month:3, dayOfMonth:1 },
+  { name:"Deep clean windows & tracks", zone:"Living room", category:"seasonal", points:15, month:9, dayOfMonth:1 }
+];
+
+function seedStarterCards(){
+  const existingNames = new Set(state.cards.map(c => c.name));
+  let added = 0;
+  STARTER_CARDS.forEach(def => {
+    if(existingNames.has(def.name)) return; // skip if already added, so this is safe to click more than once
+    const card = {
+      id: uid(), name: def.name, zone: def.zone, category: def.category, points: def.points,
+      weekday: def.weekday, dayOfMonth: def.dayOfMonth, month: def.month,
+      nextDue: null, lastDone: null
+    };
+    card.nextDue = computeInitialDueDate(card);
+    state.cards.push(card);
+    added++;
+  });
+  saveState();
+  render();
+  const btn = document.getElementById('seedBtn');
+  const original = btn.textContent;
+  btn.textContent = added ? `Added ${added} cards` : 'Already loaded';
+  setTimeout(() => { btn.textContent = original; }, 1800);
+}
+document.getElementById('seedBtn').addEventListener('click', seedStarterCards);
 
 loadWeekStartPref();
 renderMiniCalendar();
-
-loadTasks();
-loadRecurring();
+loadState();
 </script>
 </body>
 </html>
