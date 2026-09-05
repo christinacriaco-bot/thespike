@@ -1,38 +1,42 @@
-# The Card Box (future home of a Card Box + Spike merge)
-
-This repo is meant to become the merged home of two sibling projects:
-
-- **`index.html`** (this app, "Card Box") — the index-card home-routine
-  method, considered the better/more current version going forward.
-- **`legacy-spike/index.html`** — the original Spike app (corkboard +
-  recurring-task productivity tool) kept as-is for reference until the
-  merge happens. Do not treat this as dead code to delete casually —
-  it's the source of the due-date engine and visual language Card Box
-  already borrows from, and may still have board/spike features worth
-  carrying over.
-
-## Merge intent
-
-The eventual goal is one app, not two. Card Box already reuses Spike's
-palette, fonts, and due-date engine conventions. What Spike has that
-Card Box doesn't yet: the "This Week" corkboard/post-it board view, a
-mini calendar, and week-based color coding — evaluate whether any of
-that is worth pulling into Card Box, or whether Card Box's index-box
-metaphor fully replaces the old recurring-tasks view.
+# The Card Box
 
 A single-file HTML app implementing the "index card home routine" method
 (a la Sidetracked Home Executives / Natasha's Healthy Living) — chores are
 written on cards, sorted into Daily / Weekly / Monthly / Seasonal / Personal,
 and today's due cards surface automatically in a recipe-box style view.
 
+It's built as a digital card-filing system that mirrors its physical
+counterpart in both look and usability: an index box of routine chore
+cards you pull for the day, and a corkboard of one-off tasks you physically
+"spike" (skewer) once they're done.
+
+- **`index.html`** — the app: the recurring-card "Today" box, plus a
+  "This Week" corkboard/spike view for ad hoc tasks, and a persistent
+  mini calendar with week-based color coding.
+- **`legacy-spike/index.html`** — the original standalone Spike app
+  (corkboard + recurring-task tool), kept as reference. Its due-date
+  engine, corkboard/spike interaction, and mini calendar have all been
+  ported into `index.html`; this file is not otherwise maintained.
+
 ## Status
 
-Working prototype, single file: `index.html`. No build step — open it
-directly in a browser, or serve it statically.
+Working app, single file: `index.html`. No build step — open it directly
+in a browser, or serve it statically.
+
+## Views
+
+- **Today** — the index box: cards due today or overdue, pulled from the
+  whole recurring-card deck below. Tap a card to mark it done (and again
+  to undo same-day). A "Whole box" list lets you add, edit, and delete
+  cards.
+- **This Week** — a corkboard for one-off tasks that don't belong on a
+  recurring card. Tap a note to edit it, double-tap to spike it (with a
+  thunk sound, haptic buzz, and a paper-fleck burst) onto the pile on the
+  right.
 
 ## Data model
 
-Each card: `{ id, name, zone, category, points, weekday?, dayOfMonth?, month?, nextDue, lastDone }`
+Recurring cards: `{ id, name, zone, category, points, weekday?, dayOfMonth?, month?, nextDue, lastDone }`
 
 - `category` is one of `daily | weekly | monthly | seasonal | personal` and
   determines both the color coding and the recurrence engine.
@@ -40,9 +44,20 @@ Each card: `{ id, name, zone, category, points, weekday?, dayOfMonth?, month?, n
   `dayOfMonth`; `seasonal` cards pin to a `month` + `dayOfMonth` and recur
   yearly; `daily`/`personal` reset every day.
 - Due-date math advances from the card's *own* `nextDue`, not from "today",
-  so a late completion doesn't compress the next cycle.
+  so a late completion doesn't compress the next cycle. Verified against
+  month-end clamping and leap years (e.g. a day-31 monthly card clamps to
+  Feb 28/29 and un-clamps back to 31 the following month; a Feb-29
+  seasonal card clamps to Feb 28 in non-leap years and recovers Feb 29 on
+  the next one).
 - `nextDue < today` → overdue (amber ring); `nextDue === today` → due today
   (terracotta ring); otherwise upcoming (not shown in the daily box).
+
+One-off notes (This Week): `{ id, text, category, weekKey, weekNum, colorHex, colorName, spiked, createdAt, spikedAt }`
+
+- `category` here is free text, used only for filter chips — unlike
+  recurring cards, notes are colored by the ISO week they were created in
+  (shared `colorForWeek()` mapping with the mini calendar), not by
+  category, so stale notes visually stand out from this week's.
 
 ## Persistence
 
@@ -53,11 +68,10 @@ artifact or as a plain static page.
 
 ## Visual language
 
-Shares a palette and paper/index-card aesthetic with a sibling project,
-"The Spike" (a separate corkboard + recurring-task productivity app):
 Fraunces (headings), Work Sans (body), IBM Plex Mono (labels/meta).
-Category colors: daily = ochre, weekly = dusty blue, monthly = clay,
-seasonal = sage, personal = dusty rose.
+Category colors (recurring cards): daily = ochre, weekly = dusty blue,
+monthly = clay, seasonal = sage, personal = dusty rose. Week colors (This
+Week notes + mini calendar): a 6-color palette cycling by ISO week number.
 
 ## Known rough edges / open questions
 
@@ -65,8 +79,7 @@ seasonal = sage, personal = dusty rose.
   happen quarterly currently needs 3-4 separate seasonal cards rather
   than one recurring quarterly card — worth deciding if that's fine or
   if seasonal should support a repeat-interval instead.
-- The due-date engine was hand-derived to match Spike's approach rather
-  than sharing literal code with it — worth spot-checking against real
-  dates (especially month-end clamping for day-of-month cards).
-- No edit-in-place validation yet (e.g. changing category doesn't warn
-  you that the due date will be recalculated from scratch).
+- Editing a card's category now shows an inline warning that its due
+  date will be recalculated from scratch, but there's no equivalent
+  guard on the This Week side (e.g. editing a note's category doesn't
+  warn about anything, since notes don't have a due-date to reset).

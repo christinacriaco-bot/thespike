@@ -1474,11 +1474,12 @@ function renderEditRow(c){
   return `<div class="edit-row">
     <input id="e-name" value="${escapeHtml(c.name)}" placeholder="Card text">
     <input id="e-zone" value="${escapeHtml(c.zone||'')}" placeholder="Zone">
-    <select id="e-cat">${CATS.map(cat=>`<option value="${cat}" ${cat===c.category?'selected':''}>${CAT_LABEL[cat]}</option>`).join('')}</select>
+    <select id="e-cat" data-original-cat="${c.category}" onchange="document.getElementById('e-cat-warning').style.display = (this.value === this.dataset.originalCat) ? 'none' : 'block';">${CATS.map(cat=>`<option value="${cat}" ${cat===c.category?'selected':''}>${CAT_LABEL[cat]}</option>`).join('')}</select>
     ${extra}
     <input id="e-points" type="number" value="${c.points}" style="width:56px">
     <button onclick="saveEdit('${c.id}')">Save</button>
     <button onclick="cancelEdit()" style="background:transparent;color:var(--ink);border-color:rgba(59,52,42,0.3)">Cancel</button>
+    <small id="e-cat-warning" style="display:none;flex-basis:100%;color:var(--overdue-ring);font-family:'IBM Plex Mono',monospace;font-size:0.68rem;">Changing category resets this card's next due date.</small>
   </div>`;
 }
 
