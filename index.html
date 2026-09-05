@@ -453,7 +453,7 @@
   }
   .week-composer button:hover{ background:var(--ink-soft); }
 
-  .note-filters{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .note-filters, .zone-filters{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
   .filter-chip{
     font-family:'IBM Plex Mono', monospace;
     font-size:0.68rem;
@@ -676,6 +676,8 @@
       <span><span class="dot" style="background:var(--personal)"></span>Personal</span>
     </div>
 
+    <div class="zone-filters" id="zoneFilters"></div>
+
     <div class="today-label" id="todayLabel"></div>
     <div class="index-box" id="indexBox"></div>
     <div class="caption">tap a card to mark it done · tap again to undo</div>
@@ -791,6 +793,7 @@ const storage = (window.storage && typeof window.storage.get === 'function')
 
 let state = { cards: [], notes: [], points: 0 };
 let editingId = null;
+let currentZoneFilter = 'All';
 
 function uid(){ return 'c' + Date.now() + Math.floor(Math.random()*1000); }
 
@@ -1427,18 +1430,43 @@ function cardMetaLine(card){
   return parts.join(' · ');
 }
 
+function zoneOf(card){ return card.zone || 'No zone'; }
+
+function renderZoneFilters(){
+  const zonesEl = document.getElementById('zoneFilters');
+  const allZones = Array.from(new Set(state.cards.map(zoneOf)));
+  if(allZones.length <= 1){
+    zonesEl.innerHTML = '';
+    currentZoneFilter = 'All';
+    return;
+  }
+  const chipZones = ['All', ...allZones.sort()];
+  if(!chipZones.includes(currentZoneFilter)) currentZoneFilter = 'All';
+  zonesEl.innerHTML = '';
+  chipZones.forEach(z=>{
+    const chip = document.createElement('div');
+    chip.className = 'filter-chip' + (z===currentZoneFilter ? ' active' : '');
+    chip.textContent = z;
+    chip.addEventListener('click', ()=>{ currentZoneFilter = z; render(); });
+    zonesEl.appendChild(chip);
+  });
+}
+
 function render(){
   document.getElementById('tally').textContent = state.points + ' pts';
   document.getElementById('todayLabel').textContent = "Today's cards — " + prettyToday();
 
+  renderZoneFilters();
+  const visibleCards = currentZoneFilter === 'All' ? state.cards : state.cards.filter(c => zoneOf(c) === currentZoneFilter);
+
   const box = document.getElementById('indexBox');
-  const dueCards = state.cards.filter(c => statusOf(c) === 'due-today' || statusOf(c) === 'overdue');
-  const doneTodayCards = state.cards.filter(c => c.lastDone === todayISO());
+  const dueCards = visibleCards.filter(c => statusOf(c) === 'due-today' || statusOf(c) === 'overdue');
+  const doneTodayCards = visibleCards.filter(c => c.lastDone === todayISO());
 
   if(!state.cards.length){
     box.innerHTML = `<div class="empty-box-msg">The box is empty. Add your first cards below — pick Daily, Weekly, Monthly, Seasonal, or Personal — and they'll turn up here on the right day.</div>`;
   } else if(!dueCards.length && !doneTodayCards.length){
-    box.innerHTML = `<div class="empty-box-msg">Nothing pulled for today. Everything's filed.</div>`;
+    box.innerHTML = `<div class="empty-box-msg">Nothing pulled for today${currentZoneFilter !== 'All' ? ' in ' + escapeHtml(currentZoneFilter) : ''}. Everything's filed.</div>`;
   } else {
     let html = '';
     dueCards.forEach(card => {
@@ -1451,7 +1479,7 @@ function render(){
     box.innerHTML = html;
   }
 
-  renderAllList();
+  renderAllList(visibleCards);
 }
 
 function renderCard(card, status, done){
@@ -1467,14 +1495,21 @@ function renderCard(card, status, done){
   </div>`;
 }
 
-function renderAllList(){
+function renderAllList(visibleCards){
   const allList = document.getElementById('allList');
-  document.getElementById('deckCount').textContent = '(' + state.cards.length + ')';
+  const countLabel = currentZoneFilter === 'All'
+    ? '(' + state.cards.length + ')'
+    : `(${visibleCards.length} of ${state.cards.length})`;
+  document.getElementById('deckCount').textContent = countLabel;
   if(!state.cards.length){
     allList.innerHTML = `<div class="empty-list">No cards yet.</div>`;
     return;
   }
-  const sorted = state.cards.slice().sort((a,b) => CATS.indexOf(a.category) - CATS.indexOf(b.category));
+  if(!visibleCards.length){
+    allList.innerHTML = `<div class="empty-list">No cards in ${escapeHtml(currentZoneFilter)}.</div>`;
+    return;
+  }
+  const sorted = visibleCards.slice().sort((a,b) => CATS.indexOf(a.category) - CATS.indexOf(b.category));
   allList.innerHTML = sorted.map(c => {
     if(editingId === c.id) return renderEditRow(c);
     return `<div class="all-row cat-${c.category}">
