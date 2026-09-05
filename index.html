@@ -704,6 +704,14 @@
         <select id="c-dom"></select>
         <select id="c-month"></select>
         <select id="c-seasonday"></select>
+        <select id="c-interval">
+          <option value="1">Every month</option>
+          <option value="2">Every 2 months</option>
+          <option value="3">Every 3 months (quarterly)</option>
+          <option value="4">Every 4 months</option>
+          <option value="6">Every 6 months</option>
+          <option value="12" selected>Every 12 months (yearly)</option>
+        </select>
         <input type="number" id="c-points" min="1" max="50" value="5" placeholder="Pts">
         <button id="addBtn">Add</button>
       </div>
@@ -750,6 +758,15 @@
 <script>
 const CATS = ['daily','weekly','monthly','seasonal','personal'];
 const CAT_LABEL = {daily:'Daily', weekly:'Weekly', monthly:'Monthly', seasonal:'Seasonal', personal:'Personal'};
+const INTERVAL_OPTIONS = [
+  {value:1,  label:'Every month'},
+  {value:2,  label:'Every 2 months'},
+  {value:3,  label:'Every 3 months (quarterly)'},
+  {value:4,  label:'Every 4 months'},
+  {value:6,  label:'Every 6 months'},
+  {value:12, label:'Every 12 months (yearly)'},
+];
+const INTERVAL_LABEL_SHORT = {1:'monthly', 2:'every 2mo', 3:'quarterly', 4:'every 4mo', 6:'twice a year', 12:'yearly'};
 const WEEKDAY_TO_JS = {sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6};
 const WEEKDAY_LABELS = {mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat', sun:'Sun'};
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -839,8 +856,13 @@ function advanceDueDate(card){
     return toDateOnlyISO(new Date(year, month, clamped));
   }
   if(card.category === 'seasonal'){
-    const year = current.getFullYear()+1;
-    const monthIdx = (card.month||1)-1;
+    // Repeats every `intervalMonths` from the current due date (default 12,
+    // i.e. the original fixed-yearly behavior). A quarterly card set up
+    // with an anchor month of March advances Mar -> Jun -> Sep -> Dec -> Mar.
+    const interval = card.intervalMonths || 12;
+    let monthIdx = current.getMonth() + interval;
+    let year = current.getFullYear() + Math.floor(monthIdx / 12);
+    monthIdx = ((monthIdx % 12) + 12) % 12;
     const clamped = Math.min(card.dayOfMonth || current.getDate(), daysInMonth(year, monthIdx));
     return toDateOnlyISO(new Date(year, monthIdx, clamped));
   }
@@ -1032,7 +1054,8 @@ function readComposerCard(){
   const dayOfMonth = Number(document.getElementById('c-dom').value);
   const month = Number(document.getElementById('c-month').value);
   const seasonDay = Number(document.getElementById('c-seasonday').value);
-  return { name, zone, category, points, weekday, dayOfMonth, month, seasonDay };
+  const intervalMonths = Number(document.getElementById('c-interval').value);
+  return { name, zone, category, points, weekday, dayOfMonth, month, seasonDay, intervalMonths };
 }
 
 function addCard(){
@@ -1041,7 +1064,8 @@ function addCard(){
   const card = {
     id: uid(), name: f.name, zone: f.zone, category: f.category, points: f.points,
     weekday: f.weekday, dayOfMonth: f.category === 'monthly' ? f.dayOfMonth : f.seasonDay,
-    month: f.month, nextDue: null, lastDone: null
+    month: f.month, intervalMonths: f.category === 'seasonal' ? f.intervalMonths : undefined,
+    nextDue: null, lastDone: null
   };
   card.nextDue = computeInitialDueDate(card);
   state.cards.push(card);
@@ -1074,6 +1098,7 @@ function saveEdit(id){
   if(document.getElementById('e-dom')) card.dayOfMonth = Number(document.getElementById('e-dom').value);
   if(document.getElementById('e-month')) card.month = Number(document.getElementById('e-month').value);
   if(document.getElementById('e-seasonday')) card.dayOfMonth = Number(document.getElementById('e-seasonday').value);
+  if(document.getElementById('e-interval')) card.intervalMonths = Number(document.getElementById('e-interval').value);
   if(catChanged) card.nextDue = computeInitialDueDate(card);
   editingId = null;
   saveState();
@@ -1087,6 +1112,7 @@ function updateComposerVisibility(){
   document.getElementById('c-dom').style.display = cat === 'monthly' ? '' : 'none';
   document.getElementById('c-month').style.display = cat === 'seasonal' ? '' : 'none';
   document.getElementById('c-seasonday').style.display = cat === 'seasonal' ? '' : 'none';
+  document.getElementById('c-interval').style.display = cat === 'seasonal' ? '' : 'none';
 }
 document.getElementById('c-cat').addEventListener('change', updateComposerVisibility);
 document.getElementById('addBtn').addEventListener('click', addCard);
@@ -1393,7 +1419,10 @@ function cardMetaLine(card){
   if(card.zone) parts.push(card.zone);
   if(card.category === 'weekly') parts.push('every ' + WEEKDAY_LABELS[card.weekday || 'mon']);
   if(card.category === 'monthly') parts.push('day ' + (card.dayOfMonth||1) + ' of month');
-  if(card.category === 'seasonal') parts.push(MONTH_ABBR[(card.month||1)-1] + ' ' + (card.dayOfMonth||1));
+  if(card.category === 'seasonal'){
+    const interval = card.intervalMonths || 12;
+    parts.push(MONTH_ABBR[(card.month||1)-1] + ' ' + (card.dayOfMonth||1) + (interval !== 12 ? ` (${INTERVAL_LABEL_SHORT[interval]})` : ''));
+  }
   parts.push((card.points||0) + ' pts');
   return parts.join(' · ');
 }
@@ -1469,7 +1498,8 @@ function renderEditRow(c){
     extra = `<select id="e-dom">${Array.from({length:31},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===c.dayOfMonth?'selected':''}>${d}</option>`).join('')}</select>`;
   } else if(c.category === 'seasonal'){
     extra = `<select id="e-month">${MONTH_NAMES.map((n,i)=>`<option value="${i+1}" ${(i+1)===c.month?'selected':''}>${n}</option>`).join('')}</select>
-    <select id="e-seasonday">${Array.from({length:31},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===c.dayOfMonth?'selected':''}>${d}</option>`).join('')}</select>`;
+    <select id="e-seasonday">${Array.from({length:31},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===c.dayOfMonth?'selected':''}>${d}</option>`).join('')}</select>
+    <select id="e-interval">${INTERVAL_OPTIONS.map(o=>`<option value="${o.value}" ${o.value===(c.intervalMonths||12)?'selected':''}>${o.label}</option>`).join('')}</select>`;
   }
   return `<div class="edit-row">
     <input id="e-name" value="${escapeHtml(c.name)}" placeholder="Card text">

@@ -41,8 +41,10 @@ Recurring cards: `{ id, name, zone, category, points, weekday?, dayOfMonth?, mon
 - `category` is one of `daily | weekly | monthly | seasonal | personal` and
   determines both the color coding and the recurrence engine.
 - `weekly` cards pin to a `weekday` (mon..sun); `monthly` cards pin to a
-  `dayOfMonth`; `seasonal` cards pin to a `month` + `dayOfMonth` and recur
-  yearly; `daily`/`personal` reset every day.
+  `dayOfMonth`; `seasonal` cards pin to a `month` + `dayOfMonth` anchor and
+  repeat every `intervalMonths` (1, 2, 3/quarterly, 4, 6, or 12/yearly —
+  defaults to 12 for cards saved before this field existed); `daily`/
+  `personal` reset every day.
 - Due-date math advances from the card's *own* `nextDue`, not from "today",
   so a late completion doesn't compress the next cycle. Verified against
   month-end clamping and leap years (e.g. a day-31 monthly card clamps to
@@ -75,11 +77,12 @@ Week notes + mini calendar): a 6-color palette cycling by ISO week number.
 
 ## Known rough edges / open questions
 
-- Seasonal cards fire once a year on a fixed date. Anything meant to
-  happen quarterly currently needs 3-4 separate seasonal cards rather
-  than one recurring quarterly card — worth deciding if that's fine or
-  if seasonal should support a repeat-interval instead.
 - Editing a card's category now shows an inline warning that its due
   date will be recalculated from scratch, but there's no equivalent
   guard on the This Week side (e.g. editing a note's category doesn't
   warn about anything, since notes don't have a due-date to reset).
+- Editing a seasonal card's repeat interval (without changing category)
+  doesn't recompute `nextDue` — it only affects how the card advances
+  *after* its currently scheduled occurrence. This mirrors the existing
+  category-change behavior but hasn't been surfaced as its own inline
+  note; worth a small warning if it proves confusing in practice.
