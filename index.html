@@ -349,6 +349,56 @@
   }
 
   /* --- View tabs (Today / This Week) --- */
+  /* --- Mini calendar (persistent, both views) --- */
+  .mini-cal{
+    width:150px;
+    flex-shrink:0;
+    padding:8px 9px 9px;
+    border-radius:8px;
+    background:rgba(255,255,255,0.45);
+    border:1px solid rgba(59,52,42,0.12);
+    box-shadow:0 2px 6px rgba(59,52,42,0.08);
+  }
+  .mini-cal-header{ display:flex; align-items:center; gap:4px; margin-bottom:5px; }
+  .cal-nav{
+    font-family:'Work Sans', sans-serif; font-size:0.75rem; line-height:1;
+    width:16px; height:16px; border-radius:50%;
+    border:1px solid rgba(59,52,42,0.2); background:rgba(255,255,255,0.5);
+    color:var(--ink); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
+  }
+  .cal-nav:hover{ background:rgba(255,255,255,0.85); }
+  .cal-month-label{
+    font-family:'Fraunces', serif; font-style:italic; font-size:0.64rem; color:var(--ink);
+    flex:1; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .cal-weekstart-toggle{
+    display:flex; justify-content:center; gap:2px; padding:2px; margin-top:5px;
+    border-radius:999px; background:rgba(59,52,42,0.08);
+  }
+  .cal-ws-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:0.5rem; letter-spacing:0.02em;
+    padding:2px 6px; border:none; border-radius:999px; background:none;
+    color:var(--ink-soft); cursor:pointer;
+  }
+  .cal-ws-btn.active{
+    background:var(--paper); color:var(--ink); font-weight:600;
+    box-shadow:0 1px 2px rgba(0,0,0,0.15);
+  }
+  .cal-weekday-row{ display:grid; grid-template-columns:repeat(7, 1fr); gap:1px; margin-bottom:2px; }
+  .cal-weekday-row span{
+    font-family:'IBM Plex Mono', monospace; font-size:0.44rem; text-align:center;
+    color:var(--ink-soft); letter-spacing:0.01em;
+  }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7, 1fr); gap:1px; }
+  .cal-cell{
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    font-family:'Work Sans', sans-serif; font-size:0.5rem; border-radius:2px;
+    color:#3a3226; position:relative;
+  }
+  .cal-cell.pad{ color:#3a322677; }
+  .cal-cell.today{ box-shadow:0 0 0 1.5px var(--ink); font-weight:700; }
+
   .view-tabs{
     display:flex;
     gap:6px;
@@ -594,6 +644,21 @@
       <h1>The Card Box</h1>
       <div class="tagline">pull today's cards, do them, file them back</div>
     </div>
+
+    <div class="mini-cal" id="miniCal">
+      <div class="mini-cal-header">
+        <button id="calPrevBtn" class="cal-nav" title="Previous month">&#8249;</button>
+        <span id="calMonthLabel" class="cal-month-label"></span>
+        <button id="calNextBtn" class="cal-nav" title="Next month">&#8250;</button>
+      </div>
+      <div class="cal-weekday-row" id="calWeekdayRow"></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-weekstart-toggle" id="calWeekstartToggle">
+        <button class="cal-ws-btn" data-start="mon">Mon</button>
+        <button class="cal-ws-btn" data-start="sun">Sun</button>
+      </div>
+    </div>
+
     <div class="tally-pill">⭐ <span id="tally">0 pts</span></div>
   </header>
 
@@ -822,6 +887,95 @@ function jitterFor(id){
   for(let i=0;i<id.length;i++) h = (h*17 + id.charCodeAt(i)*7) % 1000;
   return ((h % 25) - 12);
 }
+
+// ---- Mini calendar (persistent, both views) ----
+// Week-start (Mon/Sun) is purely a display choice for this calendar's layout.
+// The colour a date belongs to is always the standard ISO (Monday-based)
+// week, same as the This Week notes — changing that boundary would ripple
+// into note colours too.
+const WEEKSTART_KEY = 'cardbox-weekstart-v1';
+let weekStartPref = 'mon'; // 'mon' | 'sun'
+let calViewYear = new Date().getFullYear();
+let calViewMonth = new Date().getMonth(); // 0-indexed
+
+function loadWeekStartPref(){
+  try{
+    const v = localStorage.getItem(WEEKSTART_KEY);
+    if(v === 'mon' || v === 'sun') weekStartPref = v;
+  }catch(e){ /* default stands */ }
+}
+function saveWeekStartPref(){
+  try{ localStorage.setItem(WEEKSTART_KEY, weekStartPref); }catch(e){ /* non-fatal */ }
+}
+
+function renderMiniCalendar(){
+  document.getElementById('calMonthLabel').textContent = `${MONTH_NAMES[calViewMonth]} ${calViewYear}`;
+  document.querySelectorAll('.cal-ws-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.start === weekStartPref);
+  });
+
+  const weekdayRow = document.getElementById('calWeekdayRow');
+  const labels = weekStartPref === 'sun' ? ['S','M','T','W','T','F','S'] : ['M','T','W','T','F','S','S'];
+  weekdayRow.innerHTML = labels.map(l=>`<span>${l}</span>`).join('');
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
+  const firstDow = firstOfMonth.getDay();
+  const leadingBlanks = weekStartPref === 'sun' ? firstDow : (firstDow + 6) % 7;
+
+  const daysThisMonth = daysInMonth(calViewYear, calViewMonth);
+  const prevMonthDays = daysInMonth(calViewYear, calViewMonth - 1 < 0 ? 11 : calViewMonth - 1);
+  const prevMonthYear = calViewMonth - 1 < 0 ? calViewYear - 1 : calViewYear;
+  const prevMonthIdx = calViewMonth - 1 < 0 ? 11 : calViewMonth - 1;
+
+  const cells = [];
+  for(let i=leadingBlanks; i>0; i--){
+    cells.push({date: new Date(prevMonthYear, prevMonthIdx, prevMonthDays - i + 1), inMonth:false});
+  }
+  for(let d=1; d<=daysThisMonth; d++){
+    cells.push({date: new Date(calViewYear, calViewMonth, d), inMonth:true});
+  }
+  while(cells.length % 7 !== 0){
+    const lastDate = cells[cells.length-1].date;
+    const next = new Date(lastDate); next.setDate(next.getDate()+1);
+    cells.push({date: next, inMonth:false});
+  }
+
+  const todayKey = todayISO();
+
+  // Colour each day by its own ISO week rather than the displayed row's —
+  // ISO weeks are Monday-based, so with the Sunday week-start toggle a row
+  // can straddle two ISO weeks and its first cell isn't a safe stand-in.
+  cells.forEach(cell=>{
+    const {week} = isoWeekKey(cell.date);
+    const color = colorForWeek(week);
+    const el = document.createElement('div');
+    el.className = 'cal-cell' + (cell.inMonth ? '' : ' pad') + (toDateOnlyISO(cell.date) === todayKey ? ' today' : '');
+    el.style.background = color.hex + '3D';
+    el.textContent = cell.date.getDate();
+    el.title = color.name + ' · week ' + week;
+    grid.appendChild(el);
+  });
+}
+
+function shiftCalMonth(delta){
+  calViewMonth += delta;
+  if(calViewMonth > 11){ calViewMonth = 0; calViewYear += 1; }
+  if(calViewMonth < 0){ calViewMonth = 11; calViewYear -= 1; }
+  renderMiniCalendar();
+}
+
+document.getElementById('calPrevBtn').addEventListener('click', () => shiftCalMonth(-1));
+document.getElementById('calNextBtn').addEventListener('click', () => shiftCalMonth(1));
+document.querySelectorAll('.cal-ws-btn').forEach(btn=>{
+  btn.addEventListener('click', () => {
+    weekStartPref = btn.dataset.start;
+    saveWeekStartPref();
+    renderMiniCalendar();
+  });
+});
 
 // ---- Persistence ----
 async function loadState(){
@@ -1386,6 +1540,8 @@ function seedStarterCards(){
 }
 document.getElementById('seedBtn').addEventListener('click', seedStarterCards);
 
+loadWeekStartPref();
+renderMiniCalendar();
 loadState();
 </script>
 </body>
