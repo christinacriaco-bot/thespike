@@ -41,7 +41,7 @@
 
   header{
     display:flex;
-    align-items:flex-end;
+    align-items:flex-start;
     justify-content:space-between;
     flex-wrap:wrap;
     gap:14px;
@@ -447,10 +447,8 @@
   .view-tab:hover{ color:var(--ink); }
   .view-tab.active{ color:var(--ink); border-bottom-color:var(--ink); font-weight:600; }
 
-  /* --- This Week: corkboard + spike --- */
-  .week-layout{ display:grid; grid-template-columns:1fr 220px; gap:28px; align-items:start; }
+  /* --- One-off tasks: corkboard --- */
   @media (max-width:700px){
-    .week-layout{ grid-template-columns:1fr; }
     .week-composer{ flex-wrap:wrap; }
     .week-composer input#noteText{ flex:1 1 100%; }
   }
@@ -580,12 +578,20 @@
     margin-top:10px;
   }
 
-  .spike-col{ display:flex; flex-direction:column; align-items:center; position:sticky; top:20px; }
-  .spike-col h2{
-    font-family:'IBM Plex Mono', monospace; font-size:0.7rem; text-transform:uppercase;
-    letter-spacing:0.1em; color:var(--ink-soft); margin:0 0 10px;
+  /* Sized full-scale, then visually scaled down to sit in the header next
+     to the mini calendar (visible on both tabs) via a wrapper matching
+     the scaled footprint — keeps every absolute-positioned child's math
+     unchanged, since getBoundingClientRect already reflects the transform. */
+  .spike-widget{ display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:132px; }
+  .spike-widget h2{
+    font-family:'IBM Plex Mono', monospace; font-size:0.6rem; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--ink-soft); margin:0 0 4px;
   }
-  .spike-stage{ position:relative; width:210px; height:340px; }
+  .spike-stage-wrap{ position:relative; width:118px; height:190px; }
+  .spike-stage{
+    position:relative; width:210px; height:340px;
+    transform:scale(0.56); transform-origin:top left;
+  }
   .base{
     position:absolute; bottom:0; left:50%; transform:translateX(-50%);
     width:90px; height:32px; border-radius:50% / 40%;
@@ -644,16 +650,16 @@
     100%{transform:translateY(0) scale(1); opacity:1;}
   }
   .count-tag{
-    margin-top:10px; font-family:'IBM Plex Mono', monospace; font-size:0.72rem;
-    color:var(--ink-soft); text-align:center;
+    margin-top:2px; font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    color:var(--ink-soft); text-align:center; line-height:1.4;
   }
   .week-legend{
-    margin-top:16px; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:210px;
+    margin-top:6px; display:flex; flex-wrap:wrap; gap:4px; justify-content:center; max-width:132px;
   }
   .week-legend span{
-    display:flex; align-items:center; gap:4px; font-family:'IBM Plex Mono', monospace;
-    font-size:0.62rem; color:var(--ink-soft); background:rgba(255,255,255,0.4);
-    padding:3px 7px; border-radius:999px;
+    display:flex; align-items:center; gap:3px; font-family:'IBM Plex Mono', monospace;
+    font-size:0.56rem; color:var(--ink-soft); background:rgba(255,255,255,0.4);
+    padding:2px 6px; border-radius:999px;
   }
   .week-legend .dot{ width:8px; height:8px; border-radius:50%; }
 
@@ -684,6 +690,21 @@
         <button class="cal-ws-btn" data-start="mon">Mon</button>
         <button class="cal-ws-btn" data-start="sun">Sun</button>
       </div>
+    </div>
+
+    <div class="spike-widget">
+      <h2>Spiked</h2>
+      <div class="spike-stage-wrap">
+        <div class="spike-stage">
+          <div class="rod" id="rod"></div>
+          <div class="base"></div>
+          <div class="pile" id="pile"></div>
+        </div>
+      </div>
+      <div class="count-tag" id="countTag"></div>
+      <div class="count-tag" id="spikedTodayTag"></div>
+      <div class="count-tag" style="margin-top:6px;">recent weeks</div>
+      <div class="week-legend" id="weekLegend"></div>
     </div>
 
     <div class="tally-pill">⭐ <span id="tally">0 pts</span></div>
@@ -760,26 +781,10 @@
       <button id="addNoteBtn">Add</button>
     </div>
     <div class="note-filters" id="noteFilters"></div>
-    <div class="week-layout">
-      <div>
-        <div class="board-frame">
-          <div class="pending-list" id="pendingList"></div>
-        </div>
-        <div class="board-caption">tap a note to edit &middot; double-tap to spike it</div>
-      </div>
-      <div class="spike-col">
-        <h2>Spiked</h2>
-        <div class="spike-stage">
-          <div class="rod" id="rod"></div>
-          <div class="base"></div>
-          <div class="pile" id="pile"></div>
-        </div>
-        <div class="count-tag" id="countTag"></div>
-        <div class="count-tag" id="spikedTodayTag"></div>
-        <div class="board-caption" style="margin-top:14px;margin-bottom:2px;">recent weeks</div>
-        <div class="week-legend" id="weekLegend"></div>
-      </div>
+    <div class="board-frame">
+      <div class="pending-list" id="pendingList"></div>
     </div>
+    <div class="board-caption">tap a note to edit &middot; double-tap to spike it &mdash; watch it land on the spike up top</div>
   </div>
 
 </div>
@@ -1225,13 +1230,15 @@ function shakeRod(){
   void rod.offsetWidth;
   rod.classList.add('shake');
 }
-function spawnFlecks(originEl, color){
+function spawnFlecks(color){
   const stage = document.querySelector('.spike-stage');
   if(!stage) return;
-  const rect = originEl.getBoundingClientRect();
-  const stageRect = stage.getBoundingClientRect();
-  const originX = rect.left + rect.width/2 - stageRect.left;
-  const originY = rect.top - stageRect.top;
+  // Fixed point in the stage's own (pre-scale) coordinate space, roughly
+  // where the pile sits — the spike now lives in the header, far from
+  // wherever the note was clicked, so bursting from the note's actual
+  // screen position no longer reads as "landing on the spike."
+  const originX = 105;
+  const originY = 250;
   for(let i=0;i<7;i++){
     const f = document.createElement('div');
     f.className='fleck';
@@ -1258,7 +1265,7 @@ function flashMessage(){
   setTimeout(()=>el.remove(), 950);
 }
 
-function spikeNote(id, originEl){
+function spikeNote(id){
   const n = state.notes.find(x=>x.id===id);
   if(!n) return;
   n.spiked = true;
@@ -1267,7 +1274,7 @@ function spikeNote(id, originEl){
   playThunk();
   vibrateShort();
   shakeRod();
-  if(originEl) spawnFlecks(originEl, n.colorHex);
+  spawnFlecks(n.colorHex);
   flashMessage();
   renderWeek();
 }
@@ -1387,7 +1394,7 @@ function renderWeek(){
     el.addEventListener('dblclick', (e)=>{
       if(e.target.classList.contains('del')) return;
       if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
-      spikeNote(n.id, el);
+      spikeNote(n.id);
     });
     pendingList.appendChild(el);
   });
